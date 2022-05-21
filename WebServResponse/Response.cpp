@@ -59,7 +59,7 @@ void Response::make_body_status(string url){
 string Response::serialize(){
     string rst;
 
-    rst.append("HTTP/1.1" + code_status + "\r\n");
+    rst.append("HTTP/1.1 " + code_status + "\r\n");
     for (std::map<string, string>::iterator itr = _headers.begin(); itr != _headers.end(); itr++)
         rst.append((*itr).first + ": " + (*itr).second + "\r\n");
     rst.append("\r\n");
@@ -71,10 +71,14 @@ string Response::serialize(){
 
 int main(){
     Response Resp;
+    std::ofstream Myfile("ResponseFile.txt");
+    Resp.code_status = "100";
     Resp.append_header("Host", "127.0.0.1:8000");
     Resp.make_header();
     Resp.make_body_status();
 
-    cout << Resp.serialize();
+    Myfile << Resp.serialize();
+    Myfile.close();
+    // cout << Resp.serialize();
     return 0;
 }

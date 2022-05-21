@@ -1,0 +1,4 @@
+HTTP/1.1 100
+Host: 127.0.0.1:8000
+
+<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>WebServ</title></head><body><h1>100</h1><h3></h3></body></html>

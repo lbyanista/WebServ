@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <fstream>
 
 #define cout std::cout
 #define endl std::endl
