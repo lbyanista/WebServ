@@ -1,3 +1,7 @@
+# TEAME MEMBERES
+
+LABRAYJI MOHAMED FADEL, YASSIN HADARI, BRAHIM SANAOUI
+
 # Webserv
 This project is about writing my ow HTTP server.
 
