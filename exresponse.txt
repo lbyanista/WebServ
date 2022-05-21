@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK\r\n
+Content-Length: 55\r\n
+Content-Type: text/html\r\n
+Last-Modified: Wed, 12 Aug 1998 15:03:50 GMT\r\n
+Accept-Ranges: bytes\r\n
+ETag: “04f97692cbd1:377”\r\n
+Date: Thu, 19 Jun 2008 19:29:07 GMT\r\n
+\r\n
+<55-character response>

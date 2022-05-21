@@ -2,33 +2,23 @@
 #define RESPONSE_HPP
 
 #include <iostream>
-#include <map>
-#include <string>
-
+#include <fstream>
+#define string std::string
 #define cout std::cout
 #define endl std::endl
-#define string std::string
 
 class Response
 {
 private:
-    string _body;
-    std::map<string, string> _headers;
-
+    string _s_line;
 public:
-    string code_status;
-    string phrase_status;
-    Response(string status);
+    Response(/* args */);
     ~Response();
-
-    void    append_header(string fst, string scd);
-	int     Get_body_size();
-
-	void make_body_status();
-	void make_body_status(string url);
-	string make_header();
-	string serialize();
-
+    // string NotFound(string s_line);
+    void Set_Sline(string s_line);
+    string Get_Sline(void);
 };
 
-#endif // !RESPONSE_HPP
+
+
+#endif
