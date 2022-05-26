@@ -1,30 +1,34 @@
 NAME = webserv
 
-CC = clang++
-FLAGS = -Werror -Wextra -Wall  -std=c++98
-SRC =  	main.cpp \
+SRC =  	Server.cpp  main.cpp\
 		parser_config/Token.cpp \
 		parser_config/Lexer.cpp \
 		parser_config/SetupServer.cpp \
 		parser_config/Parser.cpp \
-		parser_config/utils.cpp
+		parser_request/RequestInfo.cpp \
+		parser_request/LexerRe.cpp \
+		parser_request/ParserRe.cpp \
+		response/Response.cpp \
+		utilities/Utils.cpp
 
 all : $(NAME)
 
-$(NAME) : $(SRC)
-	@$(CC) $(SRC) $(FLAGS) -o $(NAME)
+$(NAME): $(SRC)
+	@c++ -Wall -Wextra -Werror $(SRC) -o $(NAME)
 
-fclean : clean
-	@rm -f $(NAME)
+clean:
+	@ rm -rf *.gch
+	@ rm -rf *.dSYM
+	@rm -rf $(NAME)
+	
+fclean: clean
 
-clean :
-
-re : fclean all
-
-make test :
-	@make re && ./webserv
+re: fclean all
 
 push : 
 	git add .
 	git commit -m "$(m)"
 	git push origin
+
+test:
+	@make re && ./webserv

@@ -1,3 +1,0 @@
-Get /mysite/index.html HTTP/1.1
-Host: 10.101.101.10
-
