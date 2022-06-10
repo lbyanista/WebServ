@@ -1,6 +1,6 @@
 NAME = webserv
 
-SRC =  	Server.cpp  main.cpp\
+SRC =  	server.cpp Request.cpp main.cpp\
 		parser_config/Token.cpp \
 		parser_config/Lexer.cpp \
 		parser_config/SetupServer.cpp \
@@ -9,12 +9,14 @@ SRC =  	Server.cpp  main.cpp\
 		parser_request/LexerRe.cpp \
 		parser_request/ParserRe.cpp \
 		response/Response.cpp \
-		utilities/Utils.cpp
+		utilities/Utils.cpp \
+		cgi/CGI.cpp \
+		response/AutoIndex.cpp
 
 all : $(NAME)
 
 $(NAME): $(SRC)
-	@c++ -Wall -Wextra -Werror $(SRC) -o $(NAME)
+	@c++ -Wall -Wextra -Werror $(SRC) -o $(NAME) #-g -fsanitize=address 
 
 clean:
 	@ rm -rf *.gch

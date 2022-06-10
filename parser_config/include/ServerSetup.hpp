@@ -1,25 +1,27 @@
-#ifndef __SERVER_SETUP__HPP__
-#define __SERVER_SETUP__HPP__
+#ifndef __SERVER_SETUP_HPP__
+#define __SERVER_SETUP_HPP__
 
 #include <iostream>
 #include <vector>
-
+#include "../../include/EnumRequestTarget.hpp"
 
 typedef struct s_location
 {
-    std::string                                 path;   // Ex: /root/local/ ,path of location, oblig
+    std::string                                 path;  // Ex: /root/local/ ,path of location, oblig
     std::string                                 root;
     std::vector<std::string>                    index;
     std::vector<std::pair<short, std::string> > error_pages;
     int                                         client_max_body_size;
     std::vector<std::string>                    request_method;
     std::string                                 autoindex;
+    std::string                                 upload_store;
 
 } t_location;
 
 class ServerSetup
 {
     friend class Parser;
+    friend class Response;
 
     private:
     //------ public member --------- >>
@@ -30,8 +32,10 @@ class ServerSetup
     std::vector<std::pair<short, std::string> > error_pages;            // error_page           404 505 /custom_404.html /custom_505.html ;
     int                                         client_max_body_size;   // client_max_body_size 1024;
     std::vector<std::string>                    request_method;         // request_method       GET POST;
-    std::string                                 autoindex;              // autoindex            off;
+    std::string                                 autoindex;              // autoindex           off;
+    std::string                                 upload_store;
     std::vector<t_location>                     locations;              // locations            location /upload {}
+    char***                                     envp;
 
     public:
     // --------------------------------------------------------- //
@@ -54,12 +58,20 @@ class ServerSetup
     std::vector<std::string>                    getRequest_method() const;        
     std::string                                 getAutoindex() const;             
     std::vector<t_location>                     getLocations() const; 
+    std::string                                 getUploadStore() const;
+    char**                                      getEnvp() const;
+
+    void                                        setEnvp(char*** envp);
+    // --------------------------------------------------------- //
+    // -------------------- Member Methods --------------------- //
+    // --------------------------------------------------------- //
+    t_location*                                 getLocation(std::string uri, TypeRequestTarget *type) const;
+    t_location*                                 isLocation(std::string path, TypeRequestTarget *type) const;
 
     // --------------------------------------------------------- //
     // ----------------- Non Member Methods -------------------- //
     // --------------------------------------------------------- //
     static t_location initLocation();
-    
 
 };
 

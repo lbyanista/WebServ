@@ -8,6 +8,7 @@
 // Define Errors Messages
 #define ERR_MSG_DIR_ERR_PAGES "Bad parameter in error_pages directve"
 #define ERR_MSG_CONTEXT_SERVER "Invalid Context; support only server context"
+#define ERR_MSG_MONDATORY_CONFIG "Invalid Context; Config must have a listen/root directive"
 
 
 // class Parser
@@ -31,13 +32,14 @@ class Parser
     // --------------------------------------------------------- //
     void                                        eat(TypeToken token_type);
     int                                         eatServer();
-    std::vector<ServerSetup>                    parse();
+    std::vector<ServerSetup>                    parse(char ***envp);
     ServerSetup                                 parseServer();
     std::pair<short, u_int32_t>                 parseListen();
     std::vector<std::string>                    parseWords();
     std::string                                 parseWord();
     std::vector<std::pair<short, std::string> > parseErrorPages();
     t_location                                  parseLocation();
+    ServerSetup                                 CheckConfig(ServerSetup &server);
 
     // --------------------------------------------------------- //
     // -------------- Non Member Functions --------------------- //

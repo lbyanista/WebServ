@@ -2,25 +2,38 @@
 #define SERVER_HPP
 
 #include "Utils.hpp"
+#include "Request.hpp"
+#include <map>
 
-class Server{
+#define LENGTH_RECV_BUFFER 2048
 
-  std::vector<struct sockaddr_in> _v_address;
-  std::vector<int> _v_server_fd;
+class Server
+{
+	private:
+	std::vector<struct sockaddr_in> _v_address;
+	std::vector<int> 				_v_server_fd;
+	std::map<int, Request> 			_requests;
 
-  int _server_fd;
-  struct sockaddr_in _address;
-  int _address_len;
-  int opt;
+	int 							_server_fd;
+	struct sockaddr_in 				_address;
+	int 							_address_len;
+	int 							opt;
 
-  public:
+	public:
+	// ================= Constructor =============== //
+	Server(std::vector<ServerSetup> servers);
 
-  Server(std::vector<ServerSetup> servers);
-  std::vector<int> GetServerFds();
-  //pair<server, possition>
-  int     AcceptNewConnection(std::pair<int, size_t> pair);
-  static  void handleConnection(ServerSetup server_setup, int new_socket);
+	// ================ Getter ===================== //
+	std::vector<int> 		GetServerFds();
 
+	// ============= Member function ============== //
+	int 					acceptNewConnection(std::pair<int, size_t> pair);
+	bool 					handleConnection(ServerSetup server_setup, int new_socket);
+	std::string 			receiveRequest(int new_socket);
+	void 					addNewRequest(int fd);
+	void					removeRequest(int fd);
+	bool					isRequestExist(int fd);
+	int						getContentLength(char *buffer);
 };
 
 #endif

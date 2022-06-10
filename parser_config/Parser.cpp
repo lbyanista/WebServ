@@ -45,16 +45,18 @@ void    Parser::eat(TypeToken token_type)
 	}
 }
  
-std::vector<ServerSetup>    Parser::parse() // error multi server
+std::vector<ServerSetup>    Parser::parse(char ***envp) // error multi server
 {
     std::vector<ServerSetup> servers;
     this->eatServer(); // check if is server context and advance to next token
     servers.push_back(parseServer());
 
+    int count_server = 0;
     while (curr_token.type != TOKEN_EOF)
     {
         this->eatServer();
         servers.push_back(parseServer());
+        servers[count_server++].setEnvp(envp);
     }
     return (servers);
 }
@@ -83,6 +85,8 @@ ServerSetup                 Parser::parseServer()
             server_setup.request_method = parseWords();
         else if (!curr_token.value.compare("autoindex") && !server_setup.autoindex.length())
             server_setup.autoindex = parseWord();
+        else if (!curr_token.value.compare("upload_store") && !server_setup.upload_store.length())
+            server_setup.upload_store = parseWord();
         else if (!curr_token.value.compare("location"))
         {
             server_setup.locations.push_back(parseLocation());
@@ -93,7 +97,7 @@ ServerSetup                 Parser::parseServer()
         this->eat(SEMICOLON);
     }
     this->eat(CLOSE_BRACKET);
-    return (server_setup);
+    return (CheckConfig(server_setup));
 }
 
 std::pair<short, u_int32_t> Parser::parseListen()
@@ -108,6 +112,7 @@ std::pair<short, u_int32_t> Parser::parseListen()
         listen.second = inet_addr(prev_token.value.c_str());
     else
         errorDisplay(prev_token.value + ": IP address listening to is not a valid ip interface!");
+
     return (listen);
 }
 
@@ -181,6 +186,8 @@ t_location                  Parser::parseLocation()
             location.request_method = parseWords();
         else if (!curr_token.value.compare("autoindex") && !location.autoindex.length())
             location.autoindex = parseWord();
+        else if (!curr_token.value.compare("upload_store") && !location.upload_store.length())
+            location.upload_store = parseWord();
         else
             errorDisplay("Invalid Token");
         this->eat(SEMICOLON);
@@ -195,6 +202,15 @@ int                          Parser::eatServer()
         errorDisplay(ERR_MSG_CONTEXT_SERVER);
     this->eat(WORD); // server directive
     return (0);
+}
+
+ServerSetup                 Parser::CheckConfig(ServerSetup &server)
+{
+    if (server.getRoot().length() == 0)
+        errorDisplay(ERR_MSG_MONDATORY_CONFIG);
+    else if (server.getListen().first == -1)
+        errorDisplay(ERR_MSG_MONDATORY_CONFIG);
+    return (server);
 }
 
 //-------------------------------- Non Member Methods ----------------------- //

@@ -106,10 +106,12 @@ Token   LexerRe::collectBody()
     std::string value;
 
     skipWhiteSpaces();
-    while(this->c != '\0' && this->i < this->contents.length())
+    while(this->i < this->contents.length())
     {
         value.push_back(this->c);
-        advance();
+        // advance();
+        this->i += 1;
+		this->c = this->contents[this->i];
     }
     return (Token(TOKEN_BODY, value));
 }

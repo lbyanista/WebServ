@@ -1,5 +1,5 @@
 #include "include/ServerSetup.hpp"
-
+#include "../include/Utils.hpp"
 // --------------------------------------------------------- //
 // --------------- Constructors and Operators -------------- //
 // --------------------------------------------------------- //
@@ -13,7 +13,9 @@ ServerSetup::ServerSetup()
     this->client_max_body_size = -1;
     this->request_method =  std::vector<std::string>();
     this->autoindex = std::string();
+    this->upload_store = std::string();
     this->locations = std::vector<t_location>();
+    this->envp = NULL;
 }
 
 ServerSetup::ServerSetup(const ServerSetup& server_setup)
@@ -32,6 +34,8 @@ ServerSetup&    ServerSetup::operator=(const ServerSetup& server_setup)
     this->request_method = server_setup.request_method;
     this->autoindex = server_setup.autoindex;
     this->locations = server_setup.locations;
+    this->upload_store  = server_setup.upload_store;
+    this->envp = server_setup.envp;
     return (*this);
 }
 
@@ -81,12 +85,75 @@ std::string                                 ServerSetup::getAutoindex() const
 std::vector<t_location>                     ServerSetup::getLocations() const
 {
     return (this->locations);
-} 
+}
 
+std::string                                 ServerSetup::getUploadStore() const
+{
+    return (this->upload_store);
+}   
 
+char**                                      ServerSetup::getEnvp() const
+{
+    return (*(this->envp));
+}
+
+void                                        ServerSetup::setEnvp(char*** envp)
+{
+    this->envp = envp;
+}
 
 // --------------------------------------------------------- //
-// ----------------- Member Methods ------------------------ //
+// -------------------- Member Methods --------------------- //
+// --------------------------------------------------------- //
+t_location*                                 ServerSetup::isLocation(std::string path, TypeRequestTarget *type) const
+{
+    for (size_t i = 0; i < getLocations().size(); i++)
+        if (getLocations()[i].path == path)
+            {
+                *type = IS_LOCATION;
+                t_location *location = new t_location();
+                *location = getLocations()[i];
+                return (location);
+            }
+    return (NULL);
+}
+
+t_location*                                  ServerSetup::getLocation(std::string uri, TypeRequestTarget *type) const
+{   
+    std::string path = getRoot() + uri;
+    TypeRequestTarget type_request;
+    t_location* location;
+    if ((type_request = getPathType(path)) == IS_FILE)
+    {
+        *type = IS_FILE;
+        return (NULL);
+    }
+    // Chank the URI directories /../.../..
+    path = uri;
+    if (this->getAutoindex() == "off")
+    {
+        while (coutChar(path, '/') > 0) // plus two directory
+        {   
+            if ((location = isLocation(path, type)) != NULL)
+                return (location);
+            path = path.substr(0, path.find_last_of('/'));
+        }
+    }
+    else
+    {
+        if ((location = isLocation(path, type)) != NULL)
+            return (location);
+    }
+   
+    if (type_request == IS_DIRECTORY)
+        *type = IS_DIRECTORY;
+    else
+        *type = IS_NOT_FOUND;
+    return (NULL);
+}
+
+// --------------------------------------------------------- //
+// ---------------- Non Member Functions ------------------- //
 // --------------------------------------------------------- //
 t_location ServerSetup::initLocation()
 {
@@ -98,6 +165,7 @@ t_location ServerSetup::initLocation()
     location.client_max_body_size = -1;
     location.request_method =  std::vector<std::string>();
     location.autoindex = std::string();
-
+    location.upload_store = std::string();
     return (location);
 }
+
