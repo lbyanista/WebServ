@@ -362,42 +362,54 @@ int                             Response::uploadFile()
     std::string line;
     std::string filename;
     std::fstream upload_file;
-    // upload_file.open(this->_server_setup.getRoot() + this->_server_setup.getUploadStore() + , std::ios::out | std::ios::binary);
-    std::istringstream body(this->_request_info.getBody()); // 1000 byte expect more than 2 lines
-    std::getline(body, first_line);
-    first_line.append("--"); // delimenter
+    std::stringstream body(this->_request_info.getBody()); // 1000 byte expect more than 2 lines
 
+    // get delimeter bondry
+    std::getline(body, first_line);
+    first_line = first_line.substr(0, first_line.length() - 1) + "--\r";
+    // std::cout << first_line << std::endl;
+    
     // Get file Name
     std::getline(body, line);
-    filename = line.substr(line.find("filename\"") + 1, line.length() - 1);
+    size_t pos = line.find("filename=\"") + 10;
+    filename = line.substr(pos, line.length() - pos - 2);
 
     // Create file name
-    upload_file.open(this->_server_setup.getRoot() + this->_server_setup.getUploadStore() + "/" + filename, std::ios::out | std::ios::binary);
-    
+    upload_file.open(this->_server_setup.getRoot() + "/" + this->_server_setup.getUploadStore() + filename, std::fstream::out);
+
     // skip headers of body
-    while (1)
+    while (std::getline(body, line))
     {
-        std::getline(body, line);
-        if (body.eof())
-            break;
-        if (line == "\r\n")
+        if (line.find("\r") == line.length() - 1)
         {
             std::getline(body, line);
-            if (line == "\r\n")
+            if (line == "\r")
                 break;
         }
     }
 
     // Set file content
-    while (1)
+    std::getline(body, line);
+    std::string tmp;
+    if (line != first_line)
+        tmp.append(line);
+    else
     {
-        std::getline(body, line);
-        if (body.eof())
-            break;
-        if (line == first_line)
-            break;
-        upload_file << line;
+        tmp.erase(tmp.length() - 1, 1);
+        upload_file << tmp;
+        upload_file.close();
+        return (0);
     }
+    while (std::getline(body, line))
+    {
+        if (line != first_line) //diff
+            tmp.append("\n");
+        else
+            break;
+        tmp.append(line);
+    }
+    tmp.erase(tmp.length() - 1, 1);
+    upload_file << tmp;
     if (upload_file.is_open())
         upload_file.close();
     return (0);

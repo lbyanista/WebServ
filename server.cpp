@@ -110,9 +110,9 @@ bool Server::handleConnection(ServerSetup server_setup, int new_socket)
 
 	// ----------------------- Print Request ------------------------------ //
 
-	std::cout << "<< ================== Start Request =================== >>" << std::endl;
-	std::cout << request << "\n" << std::endl;
-	std::cout << "<< =================== End Request ==================== >>" << std::endl;
+	// std::cout << "<< ================== Start Request =================== >>" << std::endl;
+	// std::cout << request << "\n" << std::endl;
+	// std::cout << "<< =================== End Request ==================== >>" << std::endl;
 
 	if (request_info.getHeaders().find("Content-Length") != request_info.getHeaders().end())
 	{

@@ -70,16 +70,6 @@ int main(int argc, char **argv, char **envp)
 	// ------------------- Parsing Config File ------------------- //
 	std::vector<ServerSetup> servers_setup = parseConfig(argc, argv, &envp);
 	signal(SIGPIPE, SIG_IGN); // ignore SIGPIPE // fix problem with broken pipe when client close connection
-	// --------------------- Test Parsing ------------------------ //
-
-	// for (int i = 0; i < (int)servers_setup.size() ;i++)
-	//     std::cout << "Server: " << i
-	//             << " | Server name1: " << servers_setup[i].getServer_name()[0]
-	//             << " | Error pages: " <<  servers_setup[i].getError_pages()[0].second
-	//             << " port: "<< servers_setup[i].getListen().first << std::endl;
-
-	// std::cout << "Server: 0 | " << servers_setup[0].getLocations()[1].path << std::endl;
-	// std::cout << "Server: 0 | " << servers_setup[0].getLocations()[1].error_pages[0].second << std::endl;
 
 	// --------------------- Run Server --------------------------- //
 	run(servers_setup);
