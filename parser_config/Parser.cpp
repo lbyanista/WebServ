@@ -87,6 +87,8 @@ ServerSetup                 Parser::parseServer()
             server_setup.autoindex = parseWord();
         else if (!curr_token.value.compare("upload_store") && !server_setup.upload_store.length())
             server_setup.upload_store = parseWord();
+        else if (!curr_token.value.compare("return") && server_setup._return.first == -1)
+            server_setup._return = parseRedirect();
         else if (!curr_token.value.compare("location"))
         {
             server_setup.locations.push_back(parseLocation());
@@ -100,9 +102,9 @@ ServerSetup                 Parser::parseServer()
     return (CheckConfig(server_setup));
 }
 
-std::pair<short, u_int32_t> Parser::parseListen()
+std::pair<short, u_int32_t>     Parser::parseListen()
 {
-   std::pair<short, u_int32_t>  listen;
+    std::pair<short, u_int32_t>  listen;
    
     this->eat(WORD); // listen
     this->eat(WORD); // port
@@ -116,6 +118,20 @@ std::pair<short, u_int32_t> Parser::parseListen()
     return (listen);
 }
 
+std::pair<short, std::string>   Parser::parseRedirect()
+{
+    std::pair<short, std::string> redirect;
+
+    this->eat(WORD); // return
+    this->eat(WORD); // status codes
+    redirect.first =  stringToInt(prev_token.value);
+    if (redirect.first != 301)
+        errorDisplay("Invalid status code for redirection!");
+    this->eat(WORD); // url
+    redirect.second = prev_token.value;
+
+    return (redirect);
+}
 std::vector<std::string>    Parser::parseWords()
 {
     std::vector<std::string>    words;
@@ -188,6 +204,8 @@ t_location                  Parser::parseLocation()
             location.autoindex = parseWord();
         else if (!curr_token.value.compare("upload_store") && !location.upload_store.length())
             location.upload_store = parseWord();
+        else if (!curr_token.value.compare("return") && location._return.first == -1)
+            location._return = parseRedirect();
         else
             errorDisplay("Invalid Token");
         this->eat(SEMICOLON);

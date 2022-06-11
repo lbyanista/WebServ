@@ -15,6 +15,7 @@ typedef struct s_location
     std::vector<std::string>                    request_method;
     std::string                                 autoindex;
     std::string                                 upload_store;
+    std::pair<short, std::string>               _return;
 
 } t_location;
 
@@ -35,6 +36,7 @@ class ServerSetup
     std::string                                 autoindex;              // autoindex           off;
     std::string                                 upload_store;
     std::vector<t_location>                     locations;              // locations            location /upload {}
+    std::pair<short, std::string>               _return;
     char***                                     envp;
 
     public:
@@ -60,6 +62,7 @@ class ServerSetup
     std::vector<t_location>                     getLocations() const; 
     std::string                                 getUploadStore() const;
     char**                                      getEnvp() const;
+    std::pair<short, std::string>               getReturn() const;
 
     void                                        setEnvp(char*** envp);
     // --------------------------------------------------------- //

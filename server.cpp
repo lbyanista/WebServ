@@ -122,18 +122,17 @@ bool Server::handleConnection(ServerSetup server_setup, int new_socket)
 		std::cout << "<< ==================================================== >>" << std::endl;
 	}
 
-	// ----------------------- Handle Response ----------------------------- //
+	// ----------------------- Handle and Send Response ----------------------------- //
 	Response resp(new_socket, request_info, server_setup);
 	resp.handleResponse();
 
 	// ----------------------- Send Response To client --------------------- //
-	if (resp.IsSended())
-		resp.sendResponse();
+	// if (resp.IsSended())
+	// 	resp.sendResponse();
 
 	_requests.erase(new_socket); // request completed
 	// check if the request is keep-alive to close it
-	std::cout << "\n++++++++++ message sent ++++++++++++\n"
-			  << std::endl;
+	std::cout << "\n================ Response sent ===============\n" << std::endl;
 	return (true);
 }
 
@@ -163,7 +162,6 @@ std::string Server::receiveRequest(int fd_socket)
 		return (_requests[fd_socket].getBuffer());
 	return ("");
 }
-
 
 int getContentLength(char *buffer)
 {

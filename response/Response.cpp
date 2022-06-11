@@ -27,7 +27,7 @@ Response::Response(int fd_sock_req, RequestInfo request_info, ServerSetup server
             sendErrorPage(400, "Bad Request");
             return ;
         }
-       location = this->_server_setup.getLocation(request_info.getRequest_target(), &_type_req_target);
+        location = this->_server_setup.getLocation(request_info.getRequest_target(), &_type_req_target);
         {
             if (this->_type_req_target == IS_NOT_FOUND)
             {
@@ -60,9 +60,11 @@ bool                                    Response::IsSended()
 int                                     Response::handleResponse()
 {
     std::string path = this->_server_setup.getRoot() + this->_request_info.getRequest_target();
-    if (this->_is_error || !this->verifyRequest())
-        this->sendErrorPage(400, "Bad Request");
-    if (this->_request_info.getRequest_method() == "GET")
+    if (this->verifyRequest() == false)
+        return (0);
+    else if (this->_server_setup.getReturn().first > -1)
+        return (redirect());
+    else if (this->_request_info.getRequest_method() == "GET")
         return (this->GET(path));
     else if (this->_request_info.getRequest_method() == "POST")
         return (this->POST(path));
@@ -132,17 +134,26 @@ int                                     Response::POST(std::string& path)
 
 int                                     Response::DELETE(std::string& path)
 {
-    std::string cmd = "rm -rf " + path;
-    system(cmd.c_str());
-    ConstructResponseFile(200, "OK", "Succes_Delete.html");
-    sendResponse();
+    if (this->_type_req_target == IS_FILE && std::remove(path.c_str()) == 0)
+    {
+        this->ConstructResponseFile(200, "OK", "Succes_Delete.html");
+        this->sendResponse();
+        std::cout << "Delete: " << path << std::endl;
+    }
+    else
+        this->sendErrorPage(403, "Forbidden");
     return (1);
 }
 
 void            Response::InitResponseConfig(t_location *location)
 {
     if (location->path.length())
-        _server_setup.root += (location->path + location->root); // TO add "/"  if fix the problem!!
+    {
+        if (this->_type_req_target == IS_FILE)
+            _server_setup.root += location->root; // TO add "/"  if fix the problem!!
+        else if (this->_type_req_target == IS_LOCATION)
+            _server_setup.root += (location->path + location->root); // TO add "/"  if fix the problem!!
+    }
     if (!location->index.empty())
         _server_setup.index = location->index;
     if (!location->error_pages.empty())
@@ -155,6 +166,8 @@ void            Response::InitResponseConfig(t_location *location)
          _server_setup.autoindex = location->autoindex;
     if (location->upload_store.length())
         _server_setup.upload_store = location->upload_store;
+      if (location->_return.first != -1)
+        _server_setup._return = location->_return;
 }
 
 std::pair<std::string, std::string>    Response::getErrorPage(int status_code) // (pair(path, msg))
@@ -240,19 +253,11 @@ void                                    Response::sendResponse()
             break ;
         send(this->_fd_sock_req, &tmp_char, n_read, 0);
     }
-
     // Close the socket request if is not keep-alive
     if (this->_request_info.getHeaders().find("Connection") != this->_request_info.getHeaders().end())
     {
-        try
-        {
-            if (this->_request_info.getHeaders()["Connection"] != "keep-alive")
+        if (this->_request_info.getHeaders()["Connection"] != "keep-alive")
                 close(this->_fd_sock_req);
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-        }
     }
     close(this->_fd_sock_req);
 }
@@ -272,26 +277,24 @@ bool                                    Response::sendErrorPage(int status_code,
     std::string                           msg = error_page.second;
 
     this->_is_error = true;
+    std::cout << "ERROR: " << status_code << " " << debug_msg << "!" << std::endl;
     ConstructResponseFile(status_code, msg, path);
     this->sendResponse();
 
-    std::cout << "ERROR: " << status_code << " " << debug_msg << "!" << std::endl;
     return (false);
 }
 
 bool                                    Response::verifyRequest() // false if Response Error Sended
 {
+    if (this->_is_error)
+        return this->sendErrorPage(400, "Bad Request");
     // Check if Method is allowed
     int i;
     for (i = 0; i < (int)this->_server_setup.getRequest_method().size(); i++)
         if (this->_server_setup.getRequest_method()[i] == this->_request_info.getRequest_method())
             break;
     if (this->_server_setup.getRequest_method()[i] != this->_request_info.getRequest_method())
-        return (sendErrorPage(405));
-
-    // check auto index priority
-    // Function TO DO    
-
+        return (sendErrorPage(405)); 
     // Check body size < client_max_body_size
     int max_size;
     if ((max_size = this->_server_setup.getClient_max_body_size()) != -1)
@@ -299,7 +302,6 @@ bool                                    Response::verifyRequest() // false if Re
         if ((int)this->_request_info.getBody().length() > max_size)
             return (sendErrorPage(413)); // create 413 error page
     }
-    
     return (true);
 }
 
@@ -320,16 +322,10 @@ void                                    Response::senUnxpectedError()
     // Close the socket request if is not keep-alive
     if (this->_request_info.getHeaders().find("Connection") != this->_request_info.getHeaders().end())
     {
-        try
-        {
-            if (this->_request_info.getHeaders().at("Connection") != "keep-alive")
+        if (this->_request_info.getHeaders()["Connection"] != "keep-alive")
             close(this->_fd_sock_req);
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-        }
     }
+    close(this->_fd_sock_req);
 }
 
 std::string                             Response::getExistIndex()
@@ -358,13 +354,11 @@ bool                              Response::bodyIsFile()
 
 int                             Response::uploadFile()
 {
-    std::string first_line;
     std::string line;
-    std::string filename;
-    std::fstream upload_file;
     std::stringstream body(this->_request_info.getBody()); // 1000 byte expect more than 2 lines
 
     // get delimeter bondry
+    std::string first_line;
     std::getline(body, first_line);
     first_line = first_line.substr(0, first_line.length() - 1) + "--\r";
     // std::cout << first_line << std::endl;
@@ -372,10 +366,10 @@ int                             Response::uploadFile()
     // Get file Name
     std::getline(body, line);
     size_t pos = line.find("filename=\"") + 10;
-    filename = line.substr(pos, line.length() - pos - 2);
+    std::string filename = line.substr(pos, line.length() - pos - 2);
 
     // Create file name
-    upload_file.open(this->_server_setup.getRoot() + "/" + this->_server_setup.getUploadStore() + filename, std::fstream::out);
+    std::fstream upload_file(this->_server_setup.getRoot() + "/" + this->_server_setup.getUploadStore() + filename, std::fstream::out);
 
     // skip headers of body
     while (std::getline(body, line))
@@ -387,7 +381,6 @@ int                             Response::uploadFile()
                 break;
         }
     }
-
     // Set file content
     std::getline(body, line);
     std::string tmp;
@@ -413,6 +406,26 @@ int                             Response::uploadFile()
     if (upload_file.is_open())
         upload_file.close();
     return (0);
+}
+
+bool                                Response::redirect()
+{
+    std::string body = "<head><meta http-equiv=\"Refresh\" content=\"0; URL="
+                + this->_server_setup.getReturn().second
+                + "\"></head>";
+    std::string response = "HTTP/1.1 301 Moved Permanently\r\n";
+    response += "Content-Type: text/html\r\n";
+    response += "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n";
+    response += body;
+    send(this->_fd_sock_req, response.c_str(), response.length(), 0);
+
+    if (this->_request_info.getHeaders().find("Connection") != this->_request_info.getHeaders().end())
+    {
+        if (this->_request_info.getHeaders()["Connection"] != "keep-alive")
+            close(this->_fd_sock_req);
+    }
+    close(this->_fd_sock_req);
+    return (true);
 }
 // --------------------------------------------------------- //
 // ------------------  Non Member Functions ---------------- //

@@ -16,6 +16,7 @@ ServerSetup::ServerSetup()
     this->upload_store = std::string();
     this->locations = std::vector<t_location>();
     this->envp = NULL;
+    this->_return = std::pair<short, std::string>(); _return.first = -1;
 }
 
 ServerSetup::ServerSetup(const ServerSetup& server_setup)
@@ -36,6 +37,7 @@ ServerSetup&    ServerSetup::operator=(const ServerSetup& server_setup)
     this->locations = server_setup.locations;
     this->upload_store  = server_setup.upload_store;
     this->envp = server_setup.envp;
+    this->_return = server_setup._return;
     return (*this);
 }
 
@@ -102,6 +104,11 @@ void                                        ServerSetup::setEnvp(char*** envp)
     this->envp = envp;
 }
 
+std::pair<short, std::string>               ServerSetup::getReturn() const
+{
+    return (this->_return);
+}
+
 // --------------------------------------------------------- //
 // -------------------- Member Methods --------------------- //
 // --------------------------------------------------------- //
@@ -110,7 +117,8 @@ t_location*                                 ServerSetup::isLocation(std::string 
     for (size_t i = 0; i < getLocations().size(); i++)
         if (getLocations()[i].path == path)
             {
-                *type = IS_LOCATION;
+                if (*type != IS_FILE)
+                    *type = IS_LOCATION;
                 t_location *location = new t_location();
                 *location = getLocations()[i];
                 return (location);
@@ -124,10 +132,7 @@ t_location*                                  ServerSetup::getLocation(std::strin
     TypeRequestTarget type_request;
     t_location* location;
     if ((type_request = getPathType(path)) == IS_FILE)
-    {
         *type = IS_FILE;
-        return (NULL);
-    }
     // Chank the URI directories /../.../..
     path = uri;
     if (this->getAutoindex() == "off")
@@ -147,6 +152,8 @@ t_location*                                  ServerSetup::getLocation(std::strin
    
     if (type_request == IS_DIRECTORY)
         *type = IS_DIRECTORY;
+    else if (type_request == IS_FILE)
+        *type = IS_FILE;
     else
         *type = IS_NOT_FOUND;
     return (NULL);
@@ -166,6 +173,7 @@ t_location ServerSetup::initLocation()
     location.request_method =  std::vector<std::string>();
     location.autoindex = std::string();
     location.upload_store = std::string();
+    location._return = std::pair<short, std::string>(); location._return.first = -1;
     return (location);
 }
 

@@ -65,7 +65,7 @@ public:
     int                                     DELETE(std::string& path);
     int                                     uploadFile();
     bool                                    bodyIsFile();
-
+    bool                                    redirect();
 
     // --------------------------------------------------------- //
     // ------------------  Non Member Functions ---------------- //

@@ -40,6 +40,7 @@ class Parser
     std::vector<std::pair<short, std::string> > parseErrorPages();
     t_location                                  parseLocation();
     ServerSetup                                 CheckConfig(ServerSetup &server);
+    std::pair<short, std::string>               parseRedirect(); 
 
     // --------------------------------------------------------- //
     // -------------- Non Member Functions --------------------- //

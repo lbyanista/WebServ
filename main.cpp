@@ -56,10 +56,6 @@ std::vector<ServerSetup> parseConfig(int argc, char **argv, char ***envp)
 	else
 		contents = fileToSring(std::string("test.config").c_str());
 	Lexer lexer(contents);
-	// Token token(TOKEN_EOF, "\0");
-	// while((token = lexer.getNextToken()).type != TOKEN_EOF)
-	//     std::cout << "Token \"" << token.type << " | value = \"" << token.value << "\"" << std::endl;
-
 	Parser parser(lexer);
 	return (parser.parse(envp));
 }
