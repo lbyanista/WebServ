@@ -37,6 +37,7 @@ class ServerSetup
     std::string                                 upload_store;
     std::vector<t_location>                     locations;              // locations            location /upload {}
     std::pair<short, std::string>               _return;
+    std::string                                 _location_path;        // location path{}
     char***                                     envp;
 
     public:
@@ -63,13 +64,14 @@ class ServerSetup
     std::string                                 getUploadStore() const;
     char**                                      getEnvp() const;
     std::pair<short, std::string>               getReturn() const;
+    std::string                                 getLocationPath() const;
 
     void                                        setEnvp(char*** envp);
     // --------------------------------------------------------- //
     // -------------------- Member Methods --------------------- //
     // --------------------------------------------------------- //
     t_location*                                 getLocation(std::string uri, TypeRequestTarget *type) const;
-    t_location*                                 isLocation(std::string path, TypeRequestTarget *type) const;
+    t_location*                                 isLocation(std::string path) const;
 
     // --------------------------------------------------------- //
     // ----------------- Non Member Methods -------------------- //

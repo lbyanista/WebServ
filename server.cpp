@@ -107,12 +107,12 @@ bool Server::handleConnection(ServerSetup server_setup, int new_socket)
 	LexerRe lexer(request);
 	ParserRe parser(lexer);
 	RequestInfo request_info = parser.parse();
-
+	
 	// ----------------------- Print Request ------------------------------ //
 
-	// std::cout << "<< ================== Start Request =================== >>" << std::endl;
-	// std::cout << request << "\n" << std::endl;
-	// std::cout << "<< =================== End Request ==================== >>" << std::endl;
+	std::cout << "<< ================== Start Request =================== >>" << std::endl;
+	std::cout << request << "\n" << std::endl;
+	std::cout << "<< =================== End Request ==================== >>" << std::endl;
 
 	if (request_info.getHeaders().find("Content-Length") != request_info.getHeaders().end())
 	{

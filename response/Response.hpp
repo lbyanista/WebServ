@@ -34,6 +34,7 @@ private:
     std::fstream        _response_file;     // temp "response http message file"
     bool                _is_error;          // In response
     TypeRequestTarget   _type_req_target;   // LOCATION, FILE, PHP_FILE or NOT_FOUND
+    bool                _is_location;
 
 public:
     // --------------------------------------------------------- //
@@ -60,12 +61,13 @@ public:
     bool                                    verifyRequest();
     void                                    senUnxpectedError(); // send char * to client and set the _is_error to true
     std::string                             getExistIndex(); // check index that we can find in path
-    int                                     GET(std::string& path);
-    int                                     POST(std::string& path);
-    int                                     DELETE(std::string& path);
+    int                                     GET();
+    int                                     POST();
+    int                                     DELETE();
     int                                     uploadFile();
     bool                                    bodyIsFile();
     bool                                    redirect();
+    int                                     deleteFiles(std::string& path);
 
     // --------------------------------------------------------- //
     // ------------------  Non Member Functions ---------------- //

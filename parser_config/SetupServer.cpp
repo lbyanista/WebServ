@@ -17,6 +17,7 @@ ServerSetup::ServerSetup()
     this->locations = std::vector<t_location>();
     this->envp = NULL;
     this->_return = std::pair<short, std::string>(); _return.first = -1;
+    this->_location_path = std::string();
 }
 
 ServerSetup::ServerSetup(const ServerSetup& server_setup)
@@ -38,6 +39,7 @@ ServerSetup&    ServerSetup::operator=(const ServerSetup& server_setup)
     this->upload_store  = server_setup.upload_store;
     this->envp = server_setup.envp;
     this->_return = server_setup._return;
+    this->_location_path = server_setup._location_path;
     return (*this);
 }
 
@@ -109,16 +111,20 @@ std::pair<short, std::string>               ServerSetup::getReturn() const
     return (this->_return);
 }
 
+std::string                                 ServerSetup::getLocationPath() const
+{
+    return (this->_location_path);
+}
+
 // --------------------------------------------------------- //
 // -------------------- Member Methods --------------------- //
 // --------------------------------------------------------- //
-t_location*                                 ServerSetup::isLocation(std::string path, TypeRequestTarget *type) const
+t_location*                                 ServerSetup::isLocation(std::string path) const
 {
+
     for (size_t i = 0; i < getLocations().size(); i++)
         if (getLocations()[i].path == path)
             {
-                if (*type != IS_FILE)
-                    *type = IS_LOCATION;
                 t_location *location = new t_location();
                 *location = getLocations()[i];
                 return (location);
@@ -129,33 +135,25 @@ t_location*                                 ServerSetup::isLocation(std::string 
 t_location*                                  ServerSetup::getLocation(std::string uri, TypeRequestTarget *type) const
 {   
     std::string path = getRoot() + uri;
-    TypeRequestTarget type_request;
     t_location* location;
-    if ((type_request = getPathType(path)) == IS_FILE)
-        *type = IS_FILE;
+    *type = getPathType(path);
+
     // Chank the URI directories /../.../..
     path = uri;
     if (this->getAutoindex() == "off")
     {
         while (coutChar(path, '/') > 0) // plus two directory
         {   
-            if ((location = isLocation(path, type)) != NULL)
+            if ((location = isLocation(path)) != NULL)
                 return (location);
             path = path.substr(0, path.find_last_of('/'));
         }
     }
     else
     {
-        if ((location = isLocation(path, type)) != NULL)
+        if ((location = isLocation(path)) != NULL)
             return (location);
     }
-   
-    if (type_request == IS_DIRECTORY)
-        *type = IS_DIRECTORY;
-    else if (type_request == IS_FILE)
-        *type = IS_FILE;
-    else
-        *type = IS_NOT_FOUND;
     return (NULL);
 }
 

@@ -125,7 +125,7 @@ std::pair<short, std::string>   Parser::parseRedirect()
     this->eat(WORD); // return
     this->eat(WORD); // status codes
     redirect.first =  stringToInt(prev_token.value);
-    if (redirect.first != 301)
+    if (redirect.first != 302)
         errorDisplay("Invalid status code for redirection!");
     this->eat(WORD); // url
     redirect.second = prev_token.value;

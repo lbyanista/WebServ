@@ -10,7 +10,7 @@
 
 Response::Response(int fd_sock_req, RequestInfo request_info, ServerSetup server_setup) 
     : _server_setup(server_setup), _request_info(request_info), _fd_sock_req(fd_sock_req),
-       _is_error(false), _type_req_target(IS_LOCATION)
+       _is_error(false), _type_req_target(IS_NOT_FOUND), _is_location(false)
 {
     this->_response_file.open("response.temp", std::ios::out); // Open File
     if (!_response_file.is_open())
@@ -20,7 +20,7 @@ Response::Response(int fd_sock_req, RequestInfo request_info, ServerSetup server
     }
 
     if (request_info.getRequest_target() != "/")
-    {   
+    {
         t_location *location;
         if (request_info.isBadRequest())
         {   
@@ -28,16 +28,16 @@ Response::Response(int fd_sock_req, RequestInfo request_info, ServerSetup server
             return ;
         }
         location = this->_server_setup.getLocation(request_info.getRequest_target(), &_type_req_target);
+        if (!location && this->_type_req_target == IS_NOT_FOUND)
         {
-            if (this->_type_req_target == IS_NOT_FOUND)
-            {
                 sendErrorPage(404, "File/Location Not Found");
                 return ;
-            }
         }
         if (location)
             InitResponseConfig(location);
     }
+    else
+        _is_location = true;
 }
 
 
@@ -59,22 +59,23 @@ bool                                    Response::IsSended()
 
 int                                     Response::handleResponse()
 {
-    std::string path = this->_server_setup.getRoot() + this->_request_info.getRequest_target();
     if (this->verifyRequest() == false)
         return (0);
     else if (this->_server_setup.getReturn().first > -1)
         return (redirect());
     else if (this->_request_info.getRequest_method() == "GET")
-        return (this->GET(path));
+        return (this->GET());
     else if (this->_request_info.getRequest_method() == "POST")
-        return (this->POST(path));
+        return (this->POST());
     else if (this->_request_info.getRequest_method() == "DELETE")
-        return (this->DELETE(path));
+        return (this->DELETE());
     return this->sendErrorPage(405, "Method Not Allowed");
 }
 
-int                                     Response::GET(std::string& path)
+int                                     Response::GET()
 {   
+
+    std::string path = _server_setup.getRoot() + _request_info.getRequest_target();
     if (this->_type_req_target == IS_FILE)
     {
         std::string uri = _request_info.getRequest_target();
@@ -86,7 +87,7 @@ int                                     Response::GET(std::string& path)
             system("cat /dev/null > cgi.html");
         return (1);
     }
-    else if (this->_type_req_target == IS_LOCATION && this->_server_setup.getAutoindex() == "off")
+    else if (this->_is_location && this->_server_setup.getAutoindex() == "off")
     {
         if ((path = getExistIndex()) != "NOT_FOUND")
         {
@@ -97,12 +98,9 @@ int                                     Response::GET(std::string& path)
             this->sendErrorPage(404, "File Not Found");
         return (1);
     }
-    else if (this->_type_req_target != IS_NOT_FOUND && this->_server_setup.getAutoindex() == "on")
+    else if (this->_server_setup.getAutoindex() == "on")
     {
-        if (this->_type_req_target == IS_LOCATION)
-            this->ConstructResponseFile(200, "OK", autoIndexPath(this->_server_setup.getRoot(), this->_request_info.getRequest_target()));
-        else if (this->_type_req_target == IS_DIRECTORY)
-            this->ConstructResponseFile(200, "OK", autoIndexPath(path, ""));
+        this->ConstructResponseFile(200, "OK", autoIndexPath(path, this->_server_setup.getLocationPath())); //path is empty
         this->sendResponse();
         std::remove(AUTO_INDEX_PATH);
         return (1);
@@ -110,7 +108,7 @@ int                                     Response::GET(std::string& path)
     return (this->sendErrorPage(404, "File/Directory Not Found"));
 }
 
-int                                     Response::POST(std::string& path)
+int                                     Response::POST()
 {   
     std::string uri = _request_info.getRequest_target();
     //  Upload File
@@ -123,7 +121,7 @@ int                                     Response::POST(std::string& path)
     }
     if (this->_type_req_target == IS_FILE && isCGIFile(uri))
     {
-        path = handle_cgi(_server_setup.getRoot() + uri, _request_info, _server_setup);            
+        std::string path = handle_cgi(_server_setup.getRoot() + uri, _request_info, _server_setup);            
         this->ConstructResponseFile(200, "OK", path);
         this->sendResponse();
         system("cat /dev/null > cgi.html");
@@ -132,28 +130,62 @@ int                                     Response::POST(std::string& path)
     return (sendErrorPage(403, "Forbidden"));
 }
 
-int                                     Response::DELETE(std::string& path)
-{
-    if (this->_type_req_target == IS_FILE && std::remove(path.c_str()) == 0)
-    {
-        this->ConstructResponseFile(200, "OK", "Succes_Delete.html");
-        this->sendResponse();
-        std::cout << "Delete: " << path << std::endl;
-    }
+int                                     Response::deleteFiles(std::string& path) // 0 if success, -1 if error
+{   
+    DIR             *dir;
+    struct dirent   *direntp;
+    dir = opendir(path.c_str());
+    if (dir == NULL)
+        return (std::remove(path.c_str())); // 0 if success
     else
-        this->sendErrorPage(403, "Forbidden");
+	{
+        for(;;)
+        {
+            direntp = readdir(dir);
+            if (direntp == NULL)
+                return (0);
+            if (direntp->d_type == DT_DIR)
+            {
+                if (strcmp(direntp->d_name, ".") == 0 || strcmp(direntp->d_name, "..") == 0)
+                    continue;
+                std::string new_path = path + "/" + direntp->d_name + "/";
+                if (deleteFiles(new_path) == -1)
+                    return (-1);
+                else if (std::remove(new_path.c_str()) == -1)
+                    return (-1);
+            }
+            else if (direntp->d_type == DT_REG)
+            {
+                std::string file_path = path + "/" + direntp->d_name;
+                if (std::remove(file_path.c_str()) == -1)
+                    return (-1);
+            }
+        }
+    }
+    if (std::remove(path.c_str()) == -1)
+        return (-1);
+    return (0);
+}
+
+int                                     Response::DELETE()
+{
+    std::string path = _server_setup.getRoot() + _request_info.getRequest_target();
+
+    if (deleteFiles(path) == -1)
+        return (sendErrorPage(403, "Forbidden"));
+    if (std::remove(path.c_str()) == -1)
+        return (sendErrorPage(403, "Forbidden"));
+    this->ConstructResponseFile(200, "OK", "Succes_Delete.html");
+    this->sendResponse();
     return (1);
 }
 
 void            Response::InitResponseConfig(t_location *location)
 {
+    _is_location = true;
+    this->_server_setup._location_path = location->path;
     if (location->path.length())
-    {
-        if (this->_type_req_target == IS_FILE)
-            _server_setup.root += location->root; // TO add "/"  if fix the problem!!
-        else if (this->_type_req_target == IS_LOCATION)
-            _server_setup.root += (location->path + location->root); // TO add "/"  if fix the problem!!
-    }
+        _server_setup.root += location->root; 
     if (!location->index.empty())
         _server_setup.index = location->index;
     if (!location->error_pages.empty())
@@ -166,7 +198,7 @@ void            Response::InitResponseConfig(t_location *location)
          _server_setup.autoindex = location->autoindex;
     if (location->upload_store.length())
         _server_setup.upload_store = location->upload_store;
-      if (location->_return.first != -1)
+    if (location->_return.first != -1)
         _server_setup._return = location->_return;
 }
 
@@ -293,7 +325,8 @@ bool                                    Response::verifyRequest() // false if Re
     for (i = 0; i < (int)this->_server_setup.getRequest_method().size(); i++)
         if (this->_server_setup.getRequest_method()[i] == this->_request_info.getRequest_method())
             break;
-    if (this->_server_setup.getRequest_method()[i] != this->_request_info.getRequest_method())
+    if (this->_server_setup.getRequest_method().size() > 0
+        && this->_server_setup.getRequest_method()[i] != this->_request_info.getRequest_method())
         return (sendErrorPage(405)); 
     // Check body size < client_max_body_size
     int max_size;
@@ -318,7 +351,6 @@ void                                    Response::senUnxpectedError()
     response_error += "\r\n";
     response_error += body;
     send(this->_fd_sock_req, response_error.c_str(), response_error.length(), 0);
-
     // Close the socket request if is not keep-alive
     if (this->_request_info.getHeaders().find("Connection") != this->_request_info.getHeaders().end())
     {
@@ -334,7 +366,7 @@ std::string                             Response::getExistIndex()
 
     for (int i = 0; i < (int)this->_server_setup.getIndex().size(); i++)
     {
-        full_path = this->_server_setup.getRoot() + this->_server_setup.getIndex()[i];
+        full_path = this->_server_setup.getRoot() + this->_server_setup.getLocationPath() + this->_server_setup.getIndex()[i];
         if (access(full_path.c_str(), F_OK) != -1) // file exist
            return (full_path);
     }
@@ -413,7 +445,7 @@ bool                                Response::redirect()
     std::string body = "<head><meta http-equiv=\"Refresh\" content=\"0; URL="
                 + this->_server_setup.getReturn().second
                 + "\"></head>";
-    std::string response = "HTTP/1.1 301 Moved Permanently\r\n";
+    std::string response = "HTTP/1.1 302 Moved Temporarily\r\n";
     response += "Content-Type: text/html\r\n";
     response += "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n";
     response += body;
