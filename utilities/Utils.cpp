@@ -123,12 +123,22 @@ TypeRequestTarget   getPathType(const std::string& uri)
 }
 
 
-// count 
+// count char in
 int                  coutChar(const std::string &s, char del)
 {
     int count = 0;
     for (int i = 0; i < (int)s.size(); i++)
         if (s[i] == del) count++;
     return count;
+}
+
+// convert from hexa to decimal
+unsigned int                                hexToDecimal(const std::string &s)
+{
+    unsigned int x;
+	std::stringstream ss;
+	ss << std::hex << s;
+	ss >> x;
+    return (x);
 }
 

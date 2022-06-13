@@ -31,5 +31,6 @@ long                                        sizeFile(std::string path);
 
 TypeRequestTarget                           getPathType(const std::string& uri);
 int                                         coutChar(const std::string &s, char del);
+unsigned int                                hexToDecimal(const std::string &s);
 
 #endif

@@ -4,10 +4,12 @@
 * 4 - Delete 
 * 5 - Upload
 * 6 - Add redirection (return 301 link)
-7 - Request server by name in cmd
-8 - Stress server
-~ 9 - Fix debug mode of parsing/ Fix closed request
-10 - Correction
+* 7 - Stress server
+8 - Request server by name in cmd
+* 9 - Chanked request
+~ 10 - Fix debug mode of parsing/ Fix closed request
+11 - Correction
+12 - add cgi in config parsing
 
 
 !!!update setupserver 120  getLocation (is file) and 108 isLocation

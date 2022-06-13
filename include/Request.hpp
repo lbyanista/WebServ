@@ -11,6 +11,7 @@ class Request
     int         _readed_body;
     std::string _buffer;
     bool        _isHeaderReaded;
+    bool        _is_chanked;
 
     public:
     Request();
@@ -26,8 +27,9 @@ class Request
     void        appandBuffer(char * buffer, int length);
     bool        isHeaderReaded();
     int		    calculateReadedBody(char *buffer, int length);
-    void         setContentLength(char *buffer);
-
+    void        setHeaders(char *buffer);
+    bool        isChanked();
+    void        deleteDelimeter(bool begin);
 
 };
 

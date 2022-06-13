@@ -69,6 +69,5 @@ int main(int argc, char **argv, char **envp)
 
 	// --------------------- Run Server --------------------------- //
 	run(servers_setup);
-
 	return (EXIT_SUCCESS);
 }
