@@ -46,7 +46,7 @@ const std::string     handle_cgi(std::string path, RequestInfo &request, ServerS
     pid_t pid;
 
     envp = setEnvp(request, server);
-    argv.push_back("php-cgi");
+    argv.push_back(server.getPhpCgiPath().c_str());
     argv.push_back(path.c_str());
     argv.push_back(NULL);
 

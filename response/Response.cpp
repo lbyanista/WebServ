@@ -79,12 +79,17 @@ int                                     Response::GET()
     if (this->_type_req_target == IS_FILE)
     {
         std::string uri = _request_info.getRequest_target();
-        if (isCGIFile(uri))
-            path = handle_cgi(_server_setup.getRoot() + uri, _request_info, _server_setup);            
+        if (isCGIFile(uri) && _server_setup.getPhpCgiPath().length() > 0)
+            path = handle_cgi(_server_setup.getRoot() + uri, _request_info, _server_setup);
+        else if (isCGIFile(uri) && _server_setup.getPhpCgiPath().length() == 0)
+            return (sendErrorPage(403, "PHP CGI not found"));
         this->ConstructResponseFile(200, "OK", path);
         this->sendResponse();
         if (isCGIFile(uri))
-            system("cat /dev/null > cgi.html");
+        {
+            std::remove("cgi.html");
+            std::remove("body_req.txt");
+        }
         return (1);
     }
     else if (this->_is_location && this->_server_setup.getAutoindex() == "off")
@@ -105,7 +110,7 @@ int                                     Response::GET()
         std::remove(AUTO_INDEX_PATH);
         return (1);
     }
-    return (this->sendErrorPage(404, "File/Directory Not Found"));
+    return (this->sendErrorPage(403, "File/Directory Not Found"));
 }
 
 int                                     Response::POST()
@@ -119,12 +124,14 @@ int                                     Response::POST()
         this->ConstructResponseFile(200, "OK", "Succes_Upload.html");
         this->sendResponse();
     }
-    if (this->_type_req_target == IS_FILE && isCGIFile(uri))
+    if (this->_type_req_target == IS_FILE && isCGIFile(uri) && _server_setup.getPhpCgiPath().length() > 0)
     {
         std::string path = handle_cgi(_server_setup.getRoot() + uri, _request_info, _server_setup);            
         this->ConstructResponseFile(200, "OK", path);
         this->sendResponse();
-        system("cat /dev/null > cgi.html");
+        std::remove("cgi.html");
+        std::remove("body_req.txt");
+        // system("cat /dev/null > cgi.html");
         return (0);
     }
     return (sendErrorPage(403, "Forbidden"));
@@ -200,6 +207,8 @@ void            Response::InitResponseConfig(t_location *location)
         _server_setup.upload_store = location->upload_store;
     if (location->_return.first != -1)
         _server_setup._return = location->_return;
+    if (location->_php_cgi_path.length())
+         _server_setup._php_cgi_path = location->_php_cgi_path;
 }
 
 std::pair<std::string, std::string>    Response::getErrorPage(int status_code) // (pair(path, msg))
@@ -401,8 +410,9 @@ int                             Response::uploadFile()
     std::string filename = line.substr(pos, line.length() - pos - 2);
 
     // Create file name
-    std::fstream upload_file(this->_server_setup.getRoot() + "/" + this->_server_setup.getUploadStore() + filename, std::fstream::out);
-
+    std::fstream upload_file(this->_server_setup.getRoot()
+                            + this->_server_setup.getLocationPath() + "/" 
+                            + this->_server_setup.getUploadStore() + filename, std::fstream::out);
     // skip headers of body
     while (std::getline(body, line))
     {

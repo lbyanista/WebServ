@@ -18,6 +18,7 @@ ServerSetup::ServerSetup()
     this->envp = NULL;
     this->_return = std::pair<short, std::string>(); _return.first = -1;
     this->_location_path = std::string();
+    this->_php_cgi_path = std::string();
 }
 
 ServerSetup::ServerSetup(const ServerSetup& server_setup)
@@ -40,6 +41,7 @@ ServerSetup&    ServerSetup::operator=(const ServerSetup& server_setup)
     this->envp = server_setup.envp;
     this->_return = server_setup._return;
     this->_location_path = server_setup._location_path;
+    this->_php_cgi_path = server_setup._php_cgi_path;
     return (*this);
 }
 
@@ -116,6 +118,10 @@ std::string                                 ServerSetup::getLocationPath() const
     return (this->_location_path);
 }
 
+std::string                                 ServerSetup::getPhpCgiPath() const
+{
+    return (this->_php_cgi_path);
+}
 // --------------------------------------------------------- //
 // -------------------- Member Methods --------------------- //
 // --------------------------------------------------------- //
@@ -172,6 +178,7 @@ t_location ServerSetup::initLocation()
     location.autoindex = std::string();
     location.upload_store = std::string();
     location._return = std::pair<short, std::string>(); location._return.first = -1;
+    location._php_cgi_path = std::string();
     return (location);
 }
 

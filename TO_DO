@@ -9,7 +9,8 @@
 * 9 - Chanked request
 ~ 10 - Fix debug mode of parsing/ Fix closed request
 11 - Correction
-12 - add cgi in config parsing
+* 12 - add cgi in config parsing
+13 - folder/file with spaces in name
 
 
 !!!update setupserver 120  getLocation (is file) and 108 isLocation

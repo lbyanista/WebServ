@@ -106,15 +106,15 @@ void        Request::deleteDelimeter(bool begin) // true if begining,
             _readed_body -= (hexa.length() + 2);
         }
     }
-    if ((pos = _buffer.find("\r\n0\r\n\r\n", pos)) != std::string::npos)
-    {
-        _buffer.erase(pos ,7);
-        _readed_body -= 7;
-    }
     while ((pos = _buffer.find("\r\n", pos + 1)) != std::string::npos)
     {
         hexa = _buffer.substr(pos + 2, _buffer.find("\r\n", pos + 2) - pos - 2);
-        if (isHexa(hexa) != 0)
+        if (hexa == "0")
+        {
+            _buffer.erase(pos ,7);
+            _readed_body -= 7;
+        }
+        else if (isHexa(hexa) != 0)
         {
             _buffer.erase(pos , hexa.length() + 4);
             _readed_body -= (hexa.length() + 4);

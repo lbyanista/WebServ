@@ -89,6 +89,8 @@ ServerSetup                 Parser::parseServer()
             server_setup.upload_store = parseWord();
         else if (!curr_token.value.compare("return") && server_setup._return.first == -1)
             server_setup._return = parseRedirect();
+        else if (!curr_token.value.compare("php_cgi_path") && !server_setup._php_cgi_path.length())
+            server_setup._php_cgi_path = parseWord();
         else if (!curr_token.value.compare("location"))
         {
             server_setup.locations.push_back(parseLocation());
@@ -206,6 +208,8 @@ t_location                  Parser::parseLocation()
             location.upload_store = parseWord();
         else if (!curr_token.value.compare("return") && location._return.first == -1)
             location._return = parseRedirect();
+        else if (!curr_token.value.compare("php_cgi_path") && !location._php_cgi_path.length())
+            location._php_cgi_path = parseWord();
         else
             errorDisplay("Invalid Token");
         this->eat(SEMICOLON);
