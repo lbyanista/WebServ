@@ -22,6 +22,8 @@
 #define ERROR_PAGE_405 "error_pages/405_METHOD_NOT_ALLOWED.html"
 #define ERROR_PAGE_413 "error_pages/413_REQUEST_TOO_LARGE.html"
 #define ERROR_PAGE_403 "error_pages/403_FORBIDDEN.html"
+#define SUCCESS_PAGE_UPLOAD "success_pages/upload.html"
+#define SUCCESS_PAGE_DELETE "success_pages/delete.html"
 
 
 class Response

@@ -41,8 +41,8 @@ const std::string     handle_cgi(std::string path, RequestInfo &request, ServerS
 
     std::vector<const char*> argv;
     std::vector<const char*> envp;
-    std::string out_file = "cgi.html";
-    std::fstream in_file("body_req.txt");
+    std::string out_file = "/tmp/cgi.html";
+    std::fstream in_file("/tmp/body_req.txt");
     pid_t pid;
 
     envp = setEnvp(request, server);
@@ -54,7 +54,7 @@ const std::string     handle_cgi(std::string path, RequestInfo &request, ServerS
     in_file.close();
     
     int fd_out = open(out_file.c_str(), O_CREAT|O_RDWR, 0777);
-    int fd_in = open("body_req.txt", O_CREAT|O_RDWR, 0777);
+    int fd_in = open("/tmp/body_req.txt", O_CREAT|O_RDWR, 0777);
 
     if ((pid = fork()) == - 1)
         return ("Error: fork"); // Set error fork
@@ -69,5 +69,7 @@ const std::string     handle_cgi(std::string path, RequestInfo &request, ServerS
         waitpid(pid, NULL, 0);
     close (fd_in);
     close (fd_out);
+
+    system("cat /dev/null > /tmp/body_req.txt");
     return out_file;
 }

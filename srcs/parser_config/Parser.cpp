@@ -147,7 +147,6 @@ std::vector<std::string>    Parser::parseWords()
     return (words);
 }
 
-
 std::string                 Parser::parseWord()
 {
     this->eat(WORD); // Directive

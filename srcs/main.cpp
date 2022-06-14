@@ -54,7 +54,7 @@ std::vector<ServerSetup> parseConfig(int argc, char **argv, char ***envp)
 	if (argc == 2)
 		contents = fileToSring(argv[1]);
 	else
-		contents = fileToSring(std::string("test.config").c_str());
+		contents = fileToSring(std::string("default.config").c_str());
 	Lexer lexer(contents);
 	Parser parser(lexer);
 	return (parser.parse(envp));

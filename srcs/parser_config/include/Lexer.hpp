@@ -25,6 +25,7 @@ class Lexer
         Token   getNextToken();
         Token   collectWord();
         Token   advanceWithToken(Token token);
+        Token   collectDoubleQuotedWod();
 
         // Non Member Methods
         static int	isWord(char c);

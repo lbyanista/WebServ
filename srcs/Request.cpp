@@ -67,12 +67,14 @@ int         Request::calculateReadedBody(char *buffer, int length)
 }
 
 // set Content-length and Transfer-Encoding
-void         Request::setHeaders(char *buffer)
+int         Request::setHeaders(char *buffer)
 {
     LexerRe lexer(buffer);
 	ParserRe parser(lexer);
 	RequestInfo request_info = parser.parse();
 
+    if (request_info.isBadRequest())
+        return (-1);
 	if (request_info.getHeaders().find("Content-Length") != request_info.getHeaders().end())
 		this->_content_length =  stringToInt(request_info.getHeaders()["Content-Length"]);
     else
@@ -80,6 +82,7 @@ void         Request::setHeaders(char *buffer)
     if (request_info.getHeaders().find("Transfer-Encoding") != request_info.getHeaders().end())
         if (request_info.getHeaders()["Transfer-Encoding"] == "chunked")
             this->_is_chanked = true;
+    return (0);
 }
 
 int      isHexa(std::string str) // add to header

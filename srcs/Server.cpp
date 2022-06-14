@@ -98,21 +98,27 @@ bool Server::isRequestExist(int fd)
 
 bool Server::handleConnection(ServerSetup server_setup, int new_socket)
 {
+	std::cout << "New connection from: localhost:"  << server_setup.getListen().first << std::endl;
 	// ---------------------- Reading Request --------------------------- //
 	std::string request = receiveRequest(new_socket);
 
 	// --------------------- Parsing The Request ------------------------- //
 	if (request.empty())
 		return false;
+	else if (request == "error")
+	{
+		std::cerr << "Error in request" << std::endl;
+		close(new_socket);
+		_requests.erase(new_socket); // request completed
+		return true;
+	}
 	LexerRe lexer(request);
 	ParserRe parser(lexer);
 	RequestInfo request_info = parser.parse();
 	// ----------------------- Print Request ------------------------------ //
-
 	// std::cout << "<< ================== Start Request =================== >>" << std::endl;
 	// std::cout << request << std::endl;
 	// std::cout << "<< =================== End Request ==================== >>" << std::endl;
-
 	if (request_info.getHeaders().find("Content-Length") != request_info.getHeaders().end())
 	{
 		std::cout << "<< ================== Request Info ============== >>" << std::endl;
@@ -120,7 +126,6 @@ bool Server::handleConnection(ServerSetup server_setup, int new_socket)
 		std::cout << "Lenght Body :" << request_info.getBody().length() << std::endl;
 		std::cout << "<< ==================================================== >>" << std::endl;
 	}
-
 	// ----------------------- Handle and Send Response ----------------------------- //
 	Response resp(new_socket, request_info, server_setup);
 	resp.handleResponse();
@@ -142,7 +147,8 @@ std::string Server::receiveRequest(int fd_socket)
 		valread = recv(fd_socket, buffer, LENGTH_RECV_BUFFER, 0);
 		if (valread > 0)
 			_requests[fd_socket].appandBuffer(buffer, valread);	// set content body + buffer string + set isHeaderReaded = true
-		_requests[fd_socket].setHeaders(buffer);			// set content length + chanked
+		if (_requests[fd_socket].setHeaders(buffer))			// set content length + chanked
+			return("error");
 		if (_requests[fd_socket].isChanked())
 			_requests[fd_socket].deleteDelimeter(true);
 		if (_requests[fd_socket].getContentLength() == 0)		// if the content length is 0 then the request is Complete

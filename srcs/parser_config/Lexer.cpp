@@ -66,7 +66,8 @@ Token   Lexer::getNextToken()
 Token   Lexer::collectWord()
 {
     std::string value;
-
+    if (this->c == '"')
+        return (collectDoubleQuotedWod());
     while(isWord(this->c))
     {
         value.push_back(this->c);
@@ -87,4 +88,24 @@ int	Lexer::isWord(char c)
         && c != '\n' && c != '\0' && c != '\t')
 		return (1);
 	return (0);
+}
+
+Token   Lexer::collectDoubleQuotedWod()
+{
+    if (this->c == '"')
+    {
+        std::string value;
+        advance();
+        while (this->c != '"' && this->c != '\0' && this->i < this->contents.length())
+        {
+            value.push_back(this->c);
+            advance();
+        }
+        if (this->c == '"')
+        {
+            advance();
+            return (Token(WORD, value));
+        }
+    }
+    return (Token(TOKEN_ERR, "Double Quote Not Closed"));
 }

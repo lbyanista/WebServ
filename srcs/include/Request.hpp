@@ -27,7 +27,7 @@ class Request
     void        appandBuffer(char * buffer, int length);
     bool        isHeaderReaded();
     int		    calculateReadedBody(char *buffer, int length);
-    void        setHeaders(char *buffer);
+    int         setHeaders(char *buffer);
     bool        isChanked();
     void        deleteDelimeter(bool begin);
 

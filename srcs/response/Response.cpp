@@ -18,7 +18,6 @@ Response::Response(int fd_sock_req, RequestInfo request_info, ServerSetup server
             this->senUnxpectedError();
             return ;
     }
-
     if (request_info.getRequest_target() != "/")
     {
         t_location *location;
@@ -86,10 +85,7 @@ int                                     Response::GET()
         this->ConstructResponseFile(200, "OK", path);
         this->sendResponse();
         if (isCGIFile(uri))
-        {
-            std::remove("cgi.html");
-            std::remove("body_req.txt");
-        }
+            system("cat /dev/null > /tmp/cgi.html");
         return (1);
     }
     else if (this->_is_location && this->_server_setup.getAutoindex() == "off")
@@ -121,17 +117,16 @@ int                                     Response::POST()
     {
         if (bodyIsFile())
             uploadFile();
-        this->ConstructResponseFile(200, "OK", "Succes_Upload.html");
+        this->ConstructResponseFile(200, "OK", SUCCESS_PAGE_UPLOAD);
         this->sendResponse();
+        return (0);
     }
     if (this->_type_req_target == IS_FILE && isCGIFile(uri) && _server_setup.getPhpCgiPath().length() > 0)
     {
         std::string path = handle_cgi(_server_setup.getRoot() + uri, _request_info, _server_setup);            
         this->ConstructResponseFile(200, "OK", path);
         this->sendResponse();
-        std::remove("cgi.html");
-        std::remove("body_req.txt");
-        // system("cat /dev/null > cgi.html");
+        system("cat /dev/null > /tmp/cgi.html");
         return (0);
     }
     return (sendErrorPage(403, "Forbidden"));
@@ -182,7 +177,7 @@ int                                     Response::DELETE()
         return (sendErrorPage(403, "Forbidden"));
     if (std::remove(path.c_str()) == -1)
         return (sendErrorPage(403, "Forbidden"));
-    this->ConstructResponseFile(200, "OK", "Succes_Delete.html");
+    this->ConstructResponseFile(200, "OK", SUCCESS_PAGE_DELETE);
     this->sendResponse();
     return (1);
 }
@@ -460,7 +455,6 @@ bool                                Response::redirect()
     response += "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n";
     response += body;
     send(this->_fd_sock_req, response.c_str(), response.length(), 0);
-
     if (this->_request_info.getHeaders().find("Connection") != this->_request_info.getHeaders().end())
     {
         if (this->_request_info.getHeaders()["Connection"] != "keep-alive")
