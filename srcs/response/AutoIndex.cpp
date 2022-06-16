@@ -6,15 +6,23 @@
 
 static void	LinkHref(std::fstream & index, struct dirent *direntp, std::string uri)
 {
-	index << "<a href=\"";
-	if (uri.length() > 1)
-		index << uri + "/";
-	index << direntp->d_name;
-	if (direntp->d_type == DT_DIR)
-		index << "/";
-	index << "\">";
-	index << direntp->d_name;
-	index << "</a>";
+
+	if(strcmp(direntp->d_name, ".")){
+
+		index << "<a href=\"";
+		if (uri.length() > 1)
+			index << uri + "/";
+		index << direntp->d_name;
+
+		// std::cout << direntp->d_name << std::endl;
+
+		if (direntp->d_type == DT_DIR)
+			index << "/";
+		index << "\">";
+		index << direntp->d_name;
+		index << "</a>";
+	}
+
 }
 
 std::string autoIndexPath(std::string filePath, std::string uri)
@@ -30,6 +38,7 @@ std::string autoIndexPath(std::string filePath, std::string uri)
         for(;;)
 		{
             direntp = readdir( dirp );
+			// std::cout << direntp->d_name << std::endl;
             if ( direntp == NULL )
 				break;
 			index_html << "<h4>";
@@ -40,6 +49,7 @@ std::string autoIndexPath(std::string filePath, std::string uri)
 			// 	index += "_File         => ";
 			// else
 			// 	index += "                ";
+
 			LinkHref(index_html, direntp, uri);
 			index_html << "</h4>\n";
 		}
