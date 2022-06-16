@@ -5,7 +5,7 @@
 * 5 - Upload
 * 6 - Add redirection (return 301 link)
 * 7 - Stress server
-8 - Request server by name in cmd
+* 8 - Request server by name in cmd
 * 9 - Chanked request
 * 10 - Fix debug mode of parsing
 11 - Correction
@@ -24,3 +24,10 @@ Chanked , request:
         int readed_body ; var
 
     }
+
+To check :
+- the select (or equivalent) should be in the main loop and should check fd for read and write AT THE SAME TIME
+- Search for all read/recv/write/send on a socket and check that if an error returned the client is removed / close connection!
+-  (checking only -1 or 0 is not good you should check both)
+- Writing or reading ANY file descriptor without going through the select (or equivalent) 
+* - curl --resolve server1:8081:127.0.0.1 http://server1:8081/

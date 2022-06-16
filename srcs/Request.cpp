@@ -4,11 +4,14 @@
 
 Request::Request()
 {
+    _server_setup = ServerSetup();
     _content_length = 0;
     _readed_body = 0;
     _buffer = "";
     _isHeaderReaded = false;
     _is_chanked = false;
+    _server_name = "";
+    _is_complete = false;
 }
 
 int         Request::getContentLength()
@@ -16,12 +19,10 @@ int         Request::getContentLength()
     return (this->_content_length);
 }
 
-
 int         Request::getReadBody()
 {
     return (this->_readed_body);
 }
-
 
 std::string Request::getBuffer()
 {
@@ -31,6 +32,31 @@ std::string Request::getBuffer()
 void        Request::setHeaderReaded(bool isHeaderReaded)
 {
     this->_isHeaderReaded = isHeaderReaded;
+}
+
+bool        Request::isComplete()
+{
+    return (this->_is_complete);
+}
+
+void        Request::makeComplete()
+{
+    this->_is_complete = true;
+}
+
+ServerSetup Request::getServerSetup()
+{
+    return (this->_server_setup);
+}
+
+std::string Request::getServerName()
+{
+    return (this->_server_name);
+}
+
+void        Request::setServerSetup(const ServerSetup& server_setup)
+{
+    this->_server_setup = server_setup;
 }
 
 // Member functions
@@ -74,11 +100,17 @@ int         Request::setHeaders(char *buffer)
 	RequestInfo request_info = parser.parse();
 
     if (request_info.isBadRequest())
+    {
+        this->_buffer = "error";
+        makeComplete();
         return (-1);
+    }
 	if (request_info.getHeaders().find("Content-Length") != request_info.getHeaders().end())
 		this->_content_length =  stringToInt(request_info.getHeaders()["Content-Length"]);
     else
 	    this->_content_length = 0;
+    std::string host = request_info.getHeaders()["Host"];
+    this->_server_name = host.substr(0, host.find(":"));
     if (request_info.getHeaders().find("Transfer-Encoding") != request_info.getHeaders().end())
         if (request_info.getHeaders()["Transfer-Encoding"] == "chunked")
             this->_is_chanked = true;

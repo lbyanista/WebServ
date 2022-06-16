@@ -6,9 +6,8 @@
 #include "response/Response.hpp"
 
 // ================= Constructor =============== //
-Server::Server(std::vector<ServerSetup> servers) : _address_len(sizeof(_address)), opt(1)
+Server::Server(std::vector<ServerSetup> servers) : _servers_setup(servers), _address_len(sizeof(_address)), opt(1)
 {
-
 	std::vector<ServerSetup>::iterator it(servers.begin());
 	size_t size = servers.size();
 
@@ -98,46 +97,53 @@ bool Server::isRequestExist(int fd)
 
 bool Server::handleConnection(ServerSetup server_setup, int new_socket)
 {
-	std::cout << "New connection from: localhost:"  << server_setup.getListen().first << std::endl;
 	// ---------------------- Reading Request --------------------------- //
-	std::string request = receiveRequest(new_socket);
-
+	Request request = receiveRequest(new_socket);
+	
 	// --------------------- Parsing The Request ------------------------- //
-	if (request.empty())
+	if (!request.isComplete())
 		return false;
-	else if (request == "error")
+	else if (request.getBuffer() == "error")
 	{
 		std::cerr << "Error in request" << std::endl;
 		close(new_socket);
 		_requests.erase(new_socket); // request completed
 		return true;
 	}
-	LexerRe lexer(request);
+	LexerRe lexer(request.getBuffer());
 	ParserRe parser(lexer);
 	RequestInfo request_info = parser.parse();
-	// ----------------------- Print Request ------------------------------ //
-	// std::cout << "<< ================== Start Request =================== >>" << std::endl;
-	// std::cout << request << std::endl;
-	// std::cout << "<< =================== End Request ==================== >>" << std::endl;
-	if (request_info.getHeaders().find("Content-Length") != request_info.getHeaders().end())
-	{
-		std::cout << "<< ================== Request Info ============== >>" << std::endl;
-		std::cout << "Content Lenght :" << request_info.getHeaders()["Content-Length"] << std::endl;
-		std::cout << "Lenght Body :" << request_info.getBody().length() << std::endl;
-		std::cout << "<< ==================================================== >>" << std::endl;
-	}
-	// ----------------------- Handle and Send Response ----------------------------- //
-	Response resp(new_socket, request_info, server_setup);
-	resp.handleResponse();
 
+	// ----------------------- Print Request ------------------------------ //
+	std::cout << "<< ================== Start Request =================== >>" << std::endl;
+	std::cout << request.getBuffer() << std::endl;
+	std::cout << "<< =================== End Request ==================== >>" << std::endl;
+	
+	std::cout << "<< ================== Request Info ============== >>" << std::endl;
+	std::cout << "Content Lenght :" << request.getContentLength() << std::endl;
+	std::cout << "Lenght Body :" << request_info.getBody().length() << std::endl;
+	std::cout << "<< ==================================================== >>" << std::endl;
+	
+	// ----------------------- Handle and Send Response ----------------------------- //
+	if (request.getServerName() != "localhost" && request.getServerName() != "0.0.0.0" && request.getServerName() != "127.0.0.1")
+	{
+		Response resp(new_socket, request_info, request.getServerSetup());
+		resp.handleResponse();
+	}
+	else
+	{
+		Response resp(new_socket, request_info, server_setup);
+		resp.handleResponse();
+	}
 	_requests.erase(new_socket); // request completed
 	// check if the request is keep-alive to close it
 	std::cout << "\n================ Response sent ===============\n" << std::endl;
 	return (true);
 }
 
-std::string Server::receiveRequest(int fd_socket)
+Request 	Server::receiveRequest(int fd_socket)
 {
+	// std::cout << "New connection from: localhost:"  << server_setup.getListen().first << std::endl;
 	char buffer[LENGTH_RECV_BUFFER] = {0};
 	long valread = 0;
 
@@ -148,11 +154,15 @@ std::string Server::receiveRequest(int fd_socket)
 		if (valread > 0)
 			_requests[fd_socket].appandBuffer(buffer, valread);	// set content body + buffer string + set isHeaderReaded = true
 		if (_requests[fd_socket].setHeaders(buffer))			// set content length + chanked
-			return("error");
+			return _requests[fd_socket]; // if bad request return error request
+		_requests[fd_socket].setServerSetup(checkServerSetup(_requests[fd_socket].getServerName()));
 		if (_requests[fd_socket].isChanked())
 			_requests[fd_socket].deleteDelimeter(true);
 		if (_requests[fd_socket].getContentLength() == 0)		// if the content length is 0 then the request is Complete
-			return std::string(buffer, valread);
+		{
+			_requests[fd_socket].makeComplete();
+			return _requests[fd_socket];
+		}
 	}
 	// appand the buffer
 	while ((valread = recv(fd_socket, buffer, LENGTH_RECV_BUFFER, 0)) > 0)
@@ -162,9 +172,23 @@ std::string Server::receiveRequest(int fd_socket)
 	}	
 	if (_requests[fd_socket].isChanked())
 		_requests[fd_socket].deleteDelimeter(true);
-	
 	// if Finished Request
 	if (_requests[fd_socket].getReadBody() == _requests[fd_socket].getContentLength())
-		return (_requests[fd_socket].getBuffer());
-	return ("");
+	{
+		_requests[fd_socket].makeComplete();
+		return (_requests[fd_socket]);
+	}
+	return (Request());
+}
+
+ServerSetup				Server::checkServerSetup(std::string server_name)
+{
+	for (size_t i = 0; i < this->_servers_setup.size(); i++)
+	{
+		std::vector<std::string> server_names = this->_servers_setup[i].getServer_name();
+		for (size_t j = 0; j < server_names.size(); j++)
+			if (server_names[j] == server_name)
+				return this->_servers_setup[i];
+	}
+	return ServerSetup();
 }

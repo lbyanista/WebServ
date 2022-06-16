@@ -13,6 +13,7 @@ class Server
 	std::vector<struct sockaddr_in> _v_address;
 	std::vector<int> 				_v_server_fd;
 	std::map<int, Request> 			_requests;
+	std::vector<ServerSetup> 		_servers_setup;
 
 	int 							_server_fd;
 	struct sockaddr_in 				_address;
@@ -29,11 +30,12 @@ class Server
 	// ============= Member function ============== //
 	int 					acceptNewConnection(std::pair<int, size_t> pair);
 	bool 					handleConnection(ServerSetup server_setup, int new_socket);
-	std::string 			receiveRequest(int new_socket);
+	Request 				receiveRequest(int new_socket);
 	void 					addNewRequest(int fd);
 	void					removeRequest(int fd);
 	bool					isRequestExist(int fd);
 	int						getContentLength(char *buffer);
+	ServerSetup				checkServerSetup(std::string server_name);
 };
 
 #endif
