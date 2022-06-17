@@ -28,7 +28,7 @@ std::string autoIndexPath(std::string filePath, std::string uri)
 	dirp = opendir(filePath.c_str());
 	if ( dirp != NULL )
 	{
-	    index_html << "<!DOCTYPE html>\n<html>\n\n<title>autoindex</title>\n\n<h1>Index of: " + filePath + "<hr width=\"100%\"></h1>";
+	    index_html << "<!DOCTYPE html>\n<html>\n<head>\n<link rel=\"stylesheet\" href=\"css/PagesStyle.css\">\n<title>autoindex</title>\n</head>\n<h1>Index of: " + filePath + " <hr width=\"100%\"></h1>\n";
         for(;;)
 		{
             direntp = readdir( dirp );
@@ -48,5 +48,8 @@ std::string autoIndexPath(std::string filePath, std::string uri)
 		index_html << "</html>";
 		closedir( dirp );
 	}
+
+	std::cout << filePath << std::endl;
+
 	return AUTO_INDEX_PATH;
 }

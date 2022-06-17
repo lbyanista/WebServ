@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <link rel="stylesheet" href="css/PagesStyle.css"> 
+</head>
 <body>
 
-<h1>Info Submitted !!</h1>
+<h2>Info Submitted !!</h2>
 
-<h2>Your First Name: </h2> <?php echo $_POST['fname']; ?>
-<h2>Your Last Name: </h2> <?php echo $_POST['lname']; ?>
+<h3>Your First Name: </h3> <?php echo $_POST['fname']; ?>
+<h3>Your Last Name: </h3> <?php echo $_POST['lname']; ?>
 
 
 <!-- <h2>REQUEST_METHOD: </h2> <?php echo $_SERVER["REQUEST_METHOD"]; ?>

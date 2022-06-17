@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html>
+    <head>
+    <link rel="stylesheet" href="css/PagesStyle.css"> 
+    </head>
 <body>
 
 <h1>Info Submitted !!</h1>
