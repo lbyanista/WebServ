@@ -78,6 +78,6 @@ const std::string     handle_cgi(std::string path, RequestInfo &request, ServerS
     close (fd_out);
     
     ft_free_envp(envp);
-    system("cat /dev/null > /tmp/body_req.txt");
+    // system("cat /dev/null > /tmp/body_req.txt");
     return out_file;
 }

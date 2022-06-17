@@ -126,7 +126,7 @@ int                                     Response::POST()
         std::string path = handle_cgi(_server_setup.getRoot() + uri, _request_info, _server_setup);            
         this->ConstructResponseFile(200, "OK", path);
         this->sendResponse();
-        system("cat /dev/null > /tmp/cgi.html");
+        // system("cat /dev/null > /tmp/cgi.html");
         return (0);
     }
     return (sendErrorPage(403, "Forbidden"));

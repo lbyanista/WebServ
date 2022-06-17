@@ -31,3 +31,8 @@ To check :
 -  (checking only -1 or 0 is not good you should check both)
 * - Writing or reading ANY file descriptor without going through the select (or equivalent) 
 * - curl --resolve server1:8081:127.0.0.1 http://server1:8081/
+
+
+
+
+NOTE: comments tow of // system("cat /dev/null > /tmp/body_req.txt");
