@@ -53,7 +53,7 @@ RequestInfo    ParserRe::parse() // error multi server
     if ((n = prev_token.value.find("?")) != std::string::npos)
     {
         requestInfo._request_target = prev_token.value.substr(0, n);
-        requestInfo._query_string = prev_token.value.substr(n + 1);
+        requestInfo._query_string = prev_token.value.substr(n + 1, prev_token.value.length() - n);
     }
     else
         requestInfo._request_target = prev_token.value;

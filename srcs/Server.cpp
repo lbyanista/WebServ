@@ -169,7 +169,7 @@ Request 	Server::receiveRequest(int fd_socket)
 	{
 		_requests[fd_socket].appandBuffer(buffer, valread);
 		memset(buffer, 0, LENGTH_RECV_BUFFER);
-	}	
+	}
 	if (_requests[fd_socket].isChanked())
 		_requests[fd_socket].deleteDelimeter(true);
 	// if Finished Request

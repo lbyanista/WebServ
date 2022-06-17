@@ -6,6 +6,13 @@
 #include <fcntl.h> // open
 #include <unistd.h> // fork, dup2, execve
 
+void    ft_free_envp(std::vector<const char*> v)
+{
+    for (size_t i = 0; i < v.size() - 1; i++)
+        if (v[i])
+            delete v[i];
+}
+
 std::vector<const char*>    setEnvp(RequestInfo &request, ServerSetup &server)
 {
     std::vector<const char*> envp;
@@ -23,7 +30,7 @@ std::vector<const char*>    setEnvp(RequestInfo &request, ServerSetup &server)
 	envp.push_back(strdup((std::string("PATH_INFO") + "=" + server.getRoot()
             + request.getRequest_target()).c_str()));
 	envp.push_back(strdup((std::string("GATEWAY_INTERFACE") + "=CGI/1.1").c_str()));
-    
+
 	// envp.push_back(strdup((std::string("SERVER_NAME") + "=" + server.getServer_name()[0]).c_str()));
 	// envp.push_back(strdup((std::string("SERVER_PORT") + "=" + std::to_string(server.getListen().first)).c_str()));
 	// envp.push_back(strdup((std::string("SERVER_PROTOCOL") + "=HTTP/1.1").c_str()));
@@ -69,7 +76,8 @@ const std::string     handle_cgi(std::string path, RequestInfo &request, ServerS
         waitpid(pid, NULL, 0);
     close (fd_in);
     close (fd_out);
-
+    
+    ft_free_envp(envp);
     system("cat /dev/null > /tmp/body_req.txt");
     return out_file;
 }
