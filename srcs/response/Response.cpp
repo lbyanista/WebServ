@@ -33,7 +33,10 @@ Response::Response(int fd_sock_req, RequestInfo request_info, ServerSetup server
                 return ;
         }
         if (location)
+        {
             InitResponseConfig(location);
+            delete location;
+        }
     }
     else
         _is_location = true;
@@ -113,10 +116,9 @@ int                                     Response::POST()
 {   
     std::string uri = _request_info.getRequest_target();
     //  Upload File
-    if (this->_server_setup.getUploadStore() != "")
+    if (this->_server_setup.getUploadStore() != "" && bodyIsFile())
     {
-        if (bodyIsFile())
-            uploadFile();
+        uploadFile();
         this->ConstructResponseFile(200, "OK", SUCCESS_PAGE_UPLOAD);
         this->sendResponse();
         return (0);
@@ -405,7 +407,10 @@ int                             Response::uploadFile()
     std::string first_line;
     std::getline(body, first_line);
     first_line = first_line.substr(0, first_line.length() - 1) + "--\r";
-    // std::cout << first_line << std::endl;
+    
+    // std::cout << "**********\n";
+    // std::cout << this-> << std::endl;
+    // std::cout << "**********\n";
     
     // Get file Name
     std::getline(body, line);
@@ -438,6 +443,7 @@ int                             Response::uploadFile()
         upload_file.close();
         return (0);
     }
+
     while (std::getline(body, line))
     {
         if (line != first_line) //diff
