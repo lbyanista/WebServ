@@ -70,6 +70,7 @@ public:
     bool                                    bodyIsFile();
     bool                                    redirect();
     int                                     deleteFiles(std::string& path);
+    int                                     SendCGIResponse(std::string cgi_headers);
 
     // --------------------------------------------------------- //
     // ------------------  Non Member Functions ---------------- //

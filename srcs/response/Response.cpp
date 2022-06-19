@@ -82,13 +82,13 @@ int                                     Response::GET()
     {
         std::string uri = _request_info.getRequest_target();
         if (isCGIFile(uri) && _server_setup.getPhpCgiPath().length() > 0)
-            path = handle_cgi(_server_setup.getRoot() + uri, _request_info, _server_setup);
+            return (SendCGIResponse(handle_cgi(_server_setup.getRoot() + uri, _request_info, _server_setup)));
         else if (isCGIFile(uri) && _server_setup.getPhpCgiPath().length() == 0)
             return (sendErrorPage(403, "PHP CGI not found"));
         this->ConstructResponseFile(200, "OK", path);
         this->sendResponse();
-        if (isCGIFile(uri))
-            system("cat /dev/null > /tmp/cgi.html");
+        // if (isCGIFile(uri))
+        //     system("cat /dev/null > /tmp/cgi.html");
         return (1);
     }
     else if (this->_is_location && this->_server_setup.getAutoindex() == "off")
@@ -124,14 +124,32 @@ int                                     Response::POST()
         return (0);
     }
     if (isCGIFile(uri) && _server_setup.getPhpCgiPath().length() > 0)
-    {
-        std::string path = handle_cgi(_server_setup.getRoot() + uri, _request_info, _server_setup);            
-        this->ConstructResponseFile(200, "OK", path);
-        this->sendResponse();
-        system("cat /dev/null > /tmp/cgi.html");
-        return (0);
-    }
+        return (SendCGIResponse(handle_cgi(_server_setup.getRoot() + uri, _request_info, _server_setup)));   
+
     return (sendErrorPage(403, "Forbidden"));
+}
+
+int                                     Response::SendCGIResponse(std::string cgi_headers)
+{
+    std::string     msg_status = "OK";
+    int             status_code = 200;
+
+    if (cgi_headers.find("Status:") != std::string::npos)
+    {
+        status_code = stringToInt(cgi_headers.substr(8, 3));
+        msg_status = cgi_headers.substr(12, cgi_headers.find_first_of("\r") - 12);
+    }
+    this->appendStartLine(status_code, msg_status);
+    this->appendContentLength(PATH_BODY_CGI);
+    // append cgi_headers
+    if (cgi_headers.find("Status:") != std::string::npos)
+        this->_response_file << cgi_headers.substr(cgi_headers.find_first_of("\r\n") + 2, cgi_headers.length());
+    else
+        this->_response_file << cgi_headers;
+    this->appendBody(PATH_BODY_CGI);
+    sendResponse();
+    system("cat /dev/null > /tmp/cgi.html");
+    return (1);
 }
 
 int                                     Response::deleteFiles(std::string& path) // 0 if success, -1 if error

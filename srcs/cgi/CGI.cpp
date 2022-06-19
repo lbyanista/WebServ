@@ -14,25 +14,24 @@ void    ft_free_envp(std::vector<const char*> v)
             delete v[i];
 }
 
-void    parseCgi(std::string out_file_path)
+std::string    parseCgi(std::string out_file_path)
 {
-    int         status;
-    std::string msg_status;
+    // int         status;
+    // std::string msg_status;
     std::string headers;
-    std::string body_file_path = "body_file.cgi";
 
-    std::fstream body_file(body_file_path);
-    std::fstream out_file(out_file_path);
+    std::ofstream body_file(PATH_BODY_CGI);
+    std::ifstream out_file(out_file_path);
 
     std::string line;
-    std::getline(out_file, line);
-    if (line.find("Status:") != std::string::npos)
-    {
-        status = stringToInt(line.substr(8, 3));
-        msg_status = line.substr(line.find_last_of(" ") + 1, line.length() - line.find_last_of(" "));
-    }
-    else
-        headers.append(line);
+    // std::getline(out_file, line);
+    // if (line.find("Status:") != std::string::npos)
+    // {
+    //     status = stringToInt(line.substr(8, 3));
+    //     msg_status = line.substr(line.find_last_of(" ") + 1, line.length() - line.find_last_of(" "));
+    // }
+    // else
+    //     headers.append(line);
     while (std::getline(out_file, line))
     {
         if (line == "\r")
@@ -48,8 +47,10 @@ void    parseCgi(std::string out_file_path)
             body_file << "\n";
     }
     body_file.close();
-    std::cout << "-----------------status|" << status <<"|-----------------"<< std::endl;
-    std::cout << msg_status <<  std::endl;
+    out_file.close();
+    // std::cout << "-----------------status|" << status <<"|-----------------"<< std::endl;
+    // std::cout << msg_status <<  std::endl;
+    return (headers);
 }
 
 std::vector<const char*>    setEnvp(RequestInfo &request, ServerSetup &server)
@@ -117,7 +118,6 @@ const std::string     handle_cgi(std::string path, RequestInfo &request, ServerS
     close (fd_out);
     
     ft_free_envp(envp);
-    parseCgi(out_file);
-    // system("cat /dev/null > /tmp/body_req.txt");
-    return out_file;
+    system("cat /dev/null > /tmp/body_req.txt");
+    return  parseCgi(out_file);;
 }
