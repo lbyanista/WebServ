@@ -139,6 +139,18 @@ std::vector<std::string>    Parser::parseWords()
     std::vector<std::string>    words;
 
     this->eat(WORD); // direcvtive
+    if (this->prev_token.value == "request_method")
+    {
+        while (this->curr_token.type != SEMICOLON)
+        {
+            if (this->curr_token.value != "POST"
+                && this->curr_token.value != "DELETE"
+                && this->curr_token.value != "GET" )
+            this->eat(TOKEN_ERR);
+            words.push_back(this->curr_token.value);
+            this->eat(WORD);
+        }
+    }
     while (this->curr_token.type != SEMICOLON)
     {
         words.push_back(this->curr_token.value);

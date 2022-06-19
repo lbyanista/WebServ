@@ -18,7 +18,7 @@
 #include <sys/stat.h> // stat of file
 #include "EnumRequestTarget.hpp"
 
-void                                        set_fds(fd_set &CurrentSockets, std::vector<int> server_fds);
+void                                        set_fds(fd_set &SocketsRead, fd_set &SocketsWrite, std::vector<int> server_fds);
 std::pair<bool, std::pair<int, size_t> >    find_fd(int fd, std::vector<int> server_fds);
 bool                                        samePort(std::vector<struct sockaddr_in> v_address);
 

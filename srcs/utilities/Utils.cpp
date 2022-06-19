@@ -19,14 +19,16 @@ bool    samePort(std::vector<struct sockaddr_in> v_address){
     return false;
 }
 
-void set_fds(fd_set &CurrentSockets, std::vector<int> server_fds){
+// still set write fd for write !!1
+void set_fds(fd_set &SocketsRead, fd_set &SocketsWrite, std::vector<int> server_fds){
 
   size_t size = server_fds.size();
   std::vector<int>::iterator it(server_fds.begin());
 
-  FD_ZERO(&CurrentSockets);
+  FD_ZERO(&SocketsRead);
+  FD_ZERO(&SocketsWrite); 
   for (size_t i = 0; i < size; i++)
-    FD_SET((*it++), &CurrentSockets);
+    FD_SET((*it++), &SocketsRead);
 }
 
 //pair<is_find , pair<server_fd, possition>>
@@ -117,6 +119,8 @@ TypeRequestTarget   getPathType(const std::string& uri)
         else 
             return (IS_FILE); // is File
     }
+    else
+        return (IS_ERR_FILE);
     if (inFile.is_open())
         inFile.close();
     return (IS_NOT_FOUND);

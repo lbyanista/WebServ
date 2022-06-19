@@ -121,12 +121,12 @@ int                                     Response::POST()
         this->sendResponse();
         return (0);
     }
-    if (this->_type_req_target == IS_FILE && isCGIFile(uri) && _server_setup.getPhpCgiPath().length() > 0)
+    if (isCGIFile(uri) && _server_setup.getPhpCgiPath().length() > 0)
     {
         std::string path = handle_cgi(_server_setup.getRoot() + uri, _request_info, _server_setup);            
         this->ConstructResponseFile(200, "OK", path);
         this->sendResponse();
-        // system("cat /dev/null > /tmp/cgi.html");
+        system("cat /dev/null > /tmp/cgi.html");
         return (0);
     }
     return (sendErrorPage(403, "Forbidden"));
@@ -145,7 +145,7 @@ int                                     Response::deleteFiles(std::string& path)
         {
             direntp = readdir(dir);
             if (direntp == NULL)
-                return (0);
+                return (2);
             if (direntp->d_type == DT_DIR)
             {
                 if (strcmp(direntp->d_name, ".") == 0 || strcmp(direntp->d_name, "..") == 0)
@@ -173,10 +173,17 @@ int                                     Response::DELETE()
 {
     std::string path = _server_setup.getRoot() + _request_info.getRequest_target();
 
-    if (deleteFiles(path) == -1)
+    // int j = std::remove(path.c_str());
+    // std::cout << "************* j ************ " << j << "***************"<< path.c_str() << std::endl;
+
+    int i = deleteFiles(path);
+    if (i == -1)
         return (sendErrorPage(403, "Forbidden"));
-    if (std::remove(path.c_str()) == -1)
-        return (sendErrorPage(403, "Forbidden"));
+    else if (i == 2)
+    {
+        if (std::remove(path.c_str()) == -1)
+            return (sendErrorPage(403, "Forbidden"));
+    }
     this->ConstructResponseFile(200, "OK", SUCCESS_PAGE_DELETE);
     this->sendResponse();
     return (1);
