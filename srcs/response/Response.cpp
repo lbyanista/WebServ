@@ -89,7 +89,7 @@ int                                     Response::GET()
 
         //recent Add|
         // else if(isPythonFile(uri) && _server_setup.getPythonCgiPath().length() == 0)
-        //     return (sendErrorPage(403, "Pythin CGI not found"));
+        //     return (sendErrorPage(403, "Python CGI not found"));
         
         this->ConstructResponseFile(200, "OK", path);
         this->sendResponse();

@@ -3,18 +3,18 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <fcntl.h> // open
+#include <fcntl.h>  // open
 #include <unistd.h> // fork, dup2, execve
 #include "../include/Utils.hpp"
 
-void    ft_free_envp(std::vector<const char*> v)
+void ft_free_envp(std::vector<const char *> v)
 {
     for (size_t i = 0; i < v.size() - 1; i++)
         if (v[i])
             delete v[i];
 }
 
-std::string    parseCgi(std::string out_file_path)
+std::string parseCgi(std::string out_file_path, std::string ext)
 {
     std::string headers;
     std::ofstream body_file(PATH_BODY_CGI);
@@ -22,14 +22,24 @@ std::string    parseCgi(std::string out_file_path)
 
     std::string line;
 
-    while (std::getline(out_file, line))
+    if (ext != "py")
     {
-        if (line == "\r")
-            break;
-        headers += line;
-        if (!out_file.eof())
-            headers += "\n";
+
+        while (std::getline(out_file, line))
+        {
+            if (line == "\r")
+                break;
+            headers += line;
+            if (!out_file.eof())
+                headers += "\n";
+        }
     }
+
+    // recent add
+    std::cout << "*********|";
+    std::cout << headers << std::endl;
+    std::cout << "|*********\n";
+
     while (std::getline(out_file, line))
     {
         body_file << line;
@@ -43,41 +53,43 @@ std::string    parseCgi(std::string out_file_path)
     return (headers);
 }
 
-std::vector<const char*>    setEnvp(RequestInfo &request, ServerSetup &server)
+std::vector<const char *> setEnvp(RequestInfo &request, ServerSetup &server)
 {
-    std::vector<const char*> envp;
+    std::vector<const char *> envp;
 
     envp.push_back(strdup((std::string("REQUEST_METHOD") + "=" + request.getRequest_method()).c_str()));
-	envp.push_back(strdup((std::string("CONTENT_LENGTH") + "=" + std::to_string(request.getBody().length())).c_str()));
+    envp.push_back(strdup((std::string("CONTENT_LENGTH") + "=" + std::to_string(request.getBody().length())).c_str()));
     if (request.getRequest_method() == "POST" && request.getHeaders().find("Content-Type") != request.getHeaders().end())
         envp.push_back(strdup((std::string("CONTENT_TYPE") + "=" + request.getHeaders()["Content-Type"]).c_str()));
     else
-	    envp.push_back(strdup((std::string("CONTENT_TYPE") + "=text/html").c_str()));
+        envp.push_back(strdup((std::string("CONTENT_TYPE") + "=text/html").c_str()));
     envp.push_back(strdup((std::string("QUERY_STRING") + "=" + request.getQueryString()).c_str()));
     envp.push_back(strdup((std::string("REDIRECT_STATUS") + "=200").c_str()));
-    envp.push_back(strdup((std::string("PATH_TRANSLATED") + "=" + server.getRoot()
-            + request.getRequest_target()).c_str()));
-	envp.push_back(strdup((std::string("PATH_INFO") + "=" + server.getRoot()
-            + request.getRequest_target()).c_str()));
-	envp.push_back(strdup((std::string("GATEWAY_INTERFACE") + "=CGI/1.1").c_str()));
+    envp.push_back(strdup((std::string("PATH_TRANSLATED") + "=" + server.getRoot() + request.getRequest_target()).c_str()));
+    envp.push_back(strdup((std::string("PATH_INFO") + "=" + server.getRoot() + request.getRequest_target()).c_str()));
+    envp.push_back(strdup((std::string("GATEWAY_INTERFACE") + "=CGI/1.1").c_str()));
 
-	// envp.push_back(strdup((std::string("SERVER_NAME") + "=" + server.getServer_name()[0]).c_str()));
-	// envp.push_back(strdup((std::string("SERVER_PORT") + "=" + std::to_string(server.getListen().first)).c_str()));
-	// envp.push_back(strdup((std::string("SERVER_PROTOCOL") + "=HTTP/1.1").c_str()));
-	// envp.push_back(strdup((std::string("SERVER_SOFTWARE") + "=" + "SERVER_NAME").c_str()));
-	// envp.push_back(strdup((std::string("REMOTE_ADDR") + "=127.0.0.1").c_str()));
-	// envp.push_back(strdup((std::string("REMOTE_HOST") + "=" + "localhost").c_str()));
+    // envp.push_back(strdup((std::string("SERVER_NAME") + "=" + server.getServer_name()[0]).c_str()));
+    // envp.push_back(strdup((std::string("SERVER_PORT") + "=" + std::to_string(server.getListen().first)).c_str()));
+    // envp.push_back(strdup((std::string("SERVER_PROTOCOL") + "=HTTP/1.1").c_str()));
+    // envp.push_back(strdup((std::string("SERVER_SOFTWARE") + "=" + "SERVER_NAME").c_str()));
+    // envp.push_back(strdup((std::string("REMOTE_ADDR") + "=127.0.0.1").c_str()));
+    // envp.push_back(strdup((std::string("REMOTE_HOST") + "=" + "localhost").c_str()));
     // envp.push_back(strdup((std::string("SCRIPT_NAME") + "=" + request.getRequest_target()).c_str()));
     envp.push_back(NULL);
     return (envp);
 }
 
-const std::string     handle_cgi(std::string path, RequestInfo &request, ServerSetup &server)
-{   
-    std::cout << "|Handle a CGI: " << path << "|" <<std::endl; // DEBUG
+const std::string handle_cgi(std::string path, RequestInfo &request, ServerSetup &server)
+{
+    std::cout << "|Handle a CGI: " << path << "|" << std::endl; // DEBUG
 
-    std::vector<const char*> argv;
-    std::vector<const char*> envp;
+    // recent add
+    std::string ext = path.substr(path.find_last_of(".") + 1, path.length() - path.find_last_of("."));
+    std::cout << "extension is:" << ext << std::endl;
+
+    std::vector<const char *> argv;
+    std::vector<const char *> envp;
     std::string out_file = "/tmp/cgi.html";
     std::fstream in_file("/tmp/body_req.txt");
     pid_t pid;
@@ -93,26 +105,26 @@ const std::string     handle_cgi(std::string path, RequestInfo &request, ServerS
 
     in_file << request.getBody();
     in_file.close();
-    
-    int fd_out = open(out_file.c_str(), O_CREAT|O_RDWR, 0777);
-    int fd_in = open("/tmp/body_req.txt", O_CREAT|O_RDWR, 0777);
 
-    if ((pid = fork()) == - 1)
+    int fd_out = open(out_file.c_str(), O_CREAT | O_RDWR, 0777);
+    int fd_in = open("/tmp/body_req.txt", O_CREAT | O_RDWR, 0777);
+
+    if ((pid = fork()) == -1)
         return ("Error: fork"); // Set error fork
     else if (pid == 0)
     {
         dup2(fd_in, 0);
         dup2(fd_out, 1);
         // protect execve return "error" string
-        execve(argv[0], const_cast<char * const *>(argv.data()), const_cast<char * const *>(envp.data()));
-        exit (0);
+        execve(argv[0], const_cast<char *const *>(argv.data()), const_cast<char *const *>(envp.data()));
+        exit(0);
     }
     else
         waitpid(pid, NULL, 0);
-    close (fd_in);
-    close (fd_out);
-    
+    close(fd_in);
+    close(fd_out);
+
     ft_free_envp(envp);
     // system("cat /dev/null > /tmp/body_req.txt");
-    return  parseCgi(out_file);
+    return parseCgi(out_file, ext);
 }
