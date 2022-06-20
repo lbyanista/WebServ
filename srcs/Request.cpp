@@ -110,7 +110,8 @@ int         Request::setHeaders(char *buffer)
     else
 	    this->_content_length = 0;
     std::string host = request_info.getHeaders()["Host"];
-    this->_server_name = host.substr(0, host.find(":"));
+    this->_server_name = host;
+    // this->_server_name = host.substr(0, host.find(":"));
     if (request_info.getHeaders().find("Transfer-Encoding") != request_info.getHeaders().end())
         if (request_info.getHeaders()["Transfer-Encoding"] == "chunked")
             this->_is_chanked = true;

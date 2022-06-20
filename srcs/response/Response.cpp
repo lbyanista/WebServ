@@ -248,7 +248,11 @@ std::pair<std::string, std::string>    Response::getErrorPage(int status_code) /
     std::vector<std::pair<short, std::string> > v = _server_setup.getError_pages();
     for(int i = 0; i < (int)v.size(); i++)
         if (v[i].first == status_code)
-            return (std::make_pair(_server_setup.getRoot() + v[i].second, "OK"));
+        {
+            if (getPathType(_server_setup.getRoot() + v[i].second) == IS_FILE)
+                return (std::make_pair(_server_setup.getRoot() + v[i].second, "KO"));
+            return (std::make_pair(ERROR_PAGE_404, "Page_Not_Found"));
+        }
     if (status_code == 404)
         return (std::make_pair(ERROR_PAGE_404, "Page_Not_Found"));
     else if (status_code == 500)

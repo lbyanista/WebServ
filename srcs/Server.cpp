@@ -4,6 +4,8 @@
 #include "parser_request/include/ParserRe.hpp"
 #include "parser_request/include/RequestInfo.hpp"
 #include "response/Response.hpp"
+#include <arpa/inet.h>  // inet_addr
+
 
 // ================= Constructor =============== //
 Server::Server(std::vector<ServerSetup> servers) : _servers_setup(servers), _address_len(sizeof(_address)), opt(1)
@@ -99,7 +101,7 @@ bool Server::handleConnection(ServerSetup server_setup, int new_socket)
 {
 	// ---------------------- Reading Request --------------------------- //
 	Request request = receiveRequest(new_socket);
-	
+	(void)server_setup;
 	// --------------------- Parsing The Request ------------------------- //
 	if (!request.isComplete())
 		return false;
@@ -115,9 +117,9 @@ bool Server::handleConnection(ServerSetup server_setup, int new_socket)
 	RequestInfo request_info = parser.parse();
 
 	// ----------------------- Print Request ------------------------------ //
-	// std::cout << "<< ================== Start Request =================== >>" << std::endl;
-	// std::cout << request.getBuffer() << std::endl;
-	// std::cout << "<< =================== End Request ==================== >>" << std::endl;
+	std::cout << "<< ================== Start Request =================== >>" << std::endl;
+	std::cout << request.getBuffer() << std::endl;
+	std::cout << "<< =================== End Request ==================== >>" << std::endl;
 	
 	std::cout << "<< ================== Request Info ============== >>" << std::endl;
 	std::cout << "Content Lenght :" << request.getContentLength() << std::endl;
@@ -125,16 +127,16 @@ bool Server::handleConnection(ServerSetup server_setup, int new_socket)
 	std::cout << "<< ==================================================== >>" << std::endl;
 	
 	// ----------------------- Handle and Send Response ----------------------------- //
-	if (request.getServerName() != "localhost" && request.getServerName() != "0.0.0.0" && request.getServerName() != "127.0.0.1")
-	{
+	// if (request.getServerName() != "localhost" && request.getServerName() != "0.0.0.0" && request.getServerName() != "127.0.0.1")
+	// {
 		Response resp(new_socket, request_info, request.getServerSetup());
 		resp.handleResponse();
-	}
-	else
-	{
-		Response resp(new_socket, request_info, server_setup);
-		resp.handleResponse();
-	}
+	// }
+	// else
+	// {
+		// Response resp(new_socket, request_info, server_setup);
+		// resp.handleResponse();
+	// }
 	_requests.erase(new_socket); // request completed
 	// check if the request is keep-alive to close it
 	std::cout << "\n================ Response sent ===============\n" << std::endl;
@@ -181,14 +183,36 @@ Request 	Server::receiveRequest(int fd_socket)
 	return (Request());
 }
 
-ServerSetup				Server::checkServerSetup(std::string server_name)
+ServerSetup				Server::checkServerSetup(std::string host)
 {
+	short 		port = stringToInt(host.substr(host.find(":") + 1 , host.length() - host.find(":")));
+	std::string server_name = host.substr(0, host.find(":"));
+
+	// std::cout << "**************|";
+	// std::cout << port << "|******\n";
+	
 	for (size_t i = 0; i < this->_servers_setup.size(); i++)
 	{
-		std::vector<std::string> server_names = this->_servers_setup[i].getServer_name();
-		for (size_t j = 0; j < server_names.size(); j++)
-			if (server_names[j] == server_name)
-				return this->_servers_setup[i];
+		// std::vector<std::string> server_names = this->_servers_setup[i].getServer_name();
+		// for (size_t j = 0; j < server_names.size(); j++)
+		// 	if (server_names[j] == server_name)
+		// 		return this->_servers_setup[i];
+		if(this->_servers_setup[i].getListen().first == port)
+		{
+			if (server_name == "localhost" || server_name == "0.0.0.0" || server_name == "127.0.0.1")
+			{
+				if (this->_servers_setup[i].getListen().second == inet_addr("0.0.0.0")
+					||	this->_servers_setup[i].getListen().second == inet_addr("127.0.0.1"))
+						return this->_servers_setup[i];
+			}
+			else
+			{
+				std::vector<std::string> server_names = this->_servers_setup[i].getServer_name();
+				for (size_t j = 0; j < server_names.size(); j++)
+					if (server_names[j] == server_name)
+						return this->_servers_setup[i];
+			}
+		}
 	}
-	return ServerSetup();
+	return this->_servers_setup[1];
 }
