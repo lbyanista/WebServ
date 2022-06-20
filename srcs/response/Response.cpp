@@ -91,7 +91,8 @@ int                                     Response::GET()
         //     system("cat /dev/null > /tmp/cgi.html");
         return (1);
     }
-    else if (this->_is_location && this->_server_setup.getAutoindex() == "off")
+    //&& this->_server_setup.getAutoindex() == "off"
+    else if (this->_is_location && _server_setup.getIndex().size() > 0)
     {
         if ((path = getExistIndex()) != "NOT_FOUND")
         {
@@ -109,7 +110,7 @@ int                                     Response::GET()
         std::remove(AUTO_INDEX_PATH);
         return (1);
     }
-    return (this->sendErrorPage(403, "File/Directory Not Found"));
+    return (this->sendErrorPage(404, "File/Directory Not Found"));
 }
 
 int                                     Response::POST()

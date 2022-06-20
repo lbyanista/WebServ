@@ -21,7 +21,7 @@ $(NAME): $(SRC)
 clean:
 	@ rm -rf *.gch
 	@ rm -rf *.dSYM
-	@rm -rf $(NAME)
+	@ rm -rf $(NAME)
 	
 fclean: clean
 

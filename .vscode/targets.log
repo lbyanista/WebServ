@@ -6,14 +6,16 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # PARTICULAR PURPOSE.
 
 # This program built for i386-apple-darwin11.3.0
+ 
 
-# Make data base, printed on Mon Jun 20 16:02:38 2022
+# Make data base, printed on Mon Jun 20 18:19:58 2022
 
 # Variables
 
 # automatic
 <D = $(patsubst %/,%,$(dir $<))
 # automatic
+ 
 ?F = $(notdir $?)
 # makefile (from `Makefile', line 3)
 SRC = srcs/Server.cpp srcs/Request.cpp srcs/main.cpp srcs/parser_config/Token.cpp srcs/parser_config/Lexer.cpp srcs/parser_config/SetupServer.cpp srcs/parser_config/Parser.cpp srcs/parser_request/RequestInfo.cpp srcs/parser_request/LexerRe.cpp srcs/parser_request/ParserRe.cpp srcs/response/Response.cpp srcs/utilities/Utils.cpp srcs/cgi/CGI.cpp srcs/response/AutoIndex.cpp
@@ -38,13 +40,13 @@ MAKEFILE_LIST :=  Makefile
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/zz/zyxvpxvq6csfxvn_n0000jth0004fm/T/vscode-ipc-9869968c-2d32-4a76-be1c-81c08c16f053.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/zz/zyxvpxvq6csfxvn_n0000jth0004fm/T/vscode-ipc-cfafd61c-079e-4d22-a921-143f358fb794.sock
 # environment
 VSCODE_CWD = /
 # environment
-Apple_PubSub_Socket_Render = /private/tmp/com.apple.launchd.ZFGHB5eWzf/Render
+Apple_PubSub_Socket_Render = /private/tmp/com.apple.launchd.Hy1otAGrKK/Render
 # environment
-PATH = /Users/mlabrayj/.brew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/munki:/Library/Frameworks/Mono.framework/Versions/Current/Commands
+PATH = /Users/mlabrayj/.brew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/munki
 # environment
 LSCOLORS = Gxfxcxdxbxegedabagacad
 # environment
@@ -54,7 +56,7 @@ ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.s0yZ2NsEX9/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.3VO2ykg14X/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
@@ -118,7 +120,7 @@ MFLAGS = -Rrqp
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
 # environment
-XPC_SERVICE_NAME = com.microsoft.VSCode.3300
+XPC_SERVICE_NAME = com.microsoft.VSCode.1152
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # automatic
@@ -144,9 +146,9 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 9295
+VSCODE_PID = 10334
 # variable set hash-table stats:
-# Load=67/1024=7%, Rehash=0, Collisions=1/98=1%
+# Load=67/1024=7%, Rehash=0, Collisions=1/94=1%
 
 # Pattern-specific Variable Values
 
@@ -154,9 +156,9 @@ VSCODE_PID = 9295
 
 # Directories
 
-# . (device 16777227, inode 2564596): 15 files, no impossibilities.
+# . (device 16777227, inode 2564596): 14 files, no impossibilities.
 
-# 15 files, no impossibilities in 1 directories.
+# 14 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -169,34 +171,17 @@ all: webserv
 #  Implicit rule search has been done.
 #  File does not exist.
 #  File has been updated.
-#  Needs to be updated (-q is set).
+#  Successfully updated.
 # variable set hash-table stats:
-# Load=0/32=0%, Rehash=0, Collisions=0/4=0%
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
 webserv: srcs/Server.cpp srcs/Request.cpp srcs/main.cpp srcs/parser_config/Token.cpp srcs/parser_config/Lexer.cpp srcs/parser_config/SetupServer.cpp srcs/parser_config/Parser.cpp srcs/parser_request/RequestInfo.cpp srcs/parser_request/LexerRe.cpp srcs/parser_request/ParserRe.cpp srcs/response/Response.cpp srcs/utilities/Utils.cpp srcs/cgi/CGI.cpp srcs/response/AutoIndex.cpp
 #  Implicit rule search has not been done.
-#  Implicit/static pattern stem: `'
-#  File does not exist.
+#  Last modified 2022-06-20 18:07:05
 #  File has been updated.
-#  Needs to be updated (-q is set).
-# automatic
-# @ := webserv
-# automatic
-# % := 
-# automatic
-# * := 
-# automatic
-# + := srcs/Server.cpp srcs/Request.cpp srcs/main.cpp srcs/parser_config/Token.cpp srcs/parser_config/Lexer.cpp srcs/parser_config/SetupServer.cpp srcs/parser_config/Parser.cpp srcs/parser_request/RequestInfo.cpp srcs/parser_request/LexerRe.cpp srcs/parser_request/ParserRe.cpp srcs/response/Response.cpp srcs/utilities/Utils.cpp srcs/cgi/CGI.cpp srcs/response/AutoIndex.cpp
-# automatic
-# | := 
-# automatic
-# < := srcs/Server.cpp
-# automatic
-# ^ := srcs/Server.cpp srcs/Request.cpp srcs/main.cpp srcs/parser_config/Token.cpp srcs/parser_config/Lexer.cpp srcs/parser_config/SetupServer.cpp srcs/parser_config/Parser.cpp srcs/parser_request/RequestInfo.cpp srcs/parser_request/LexerRe.cpp srcs/parser_request/ParserRe.cpp srcs/response/Response.cpp srcs/utilities/Utils.cpp srcs/cgi/CGI.cpp srcs/response/AutoIndex.cpp
-# automatic
-# ? := srcs/Server.cpp srcs/Request.cpp srcs/main.cpp srcs/parser_config/Token.cpp srcs/parser_config/Lexer.cpp srcs/parser_config/SetupServer.cpp srcs/parser_config/Parser.cpp srcs/parser_request/RequestInfo.cpp srcs/parser_request/LexerRe.cpp srcs/parser_request/ParserRe.cpp srcs/response/Response.cpp srcs/utilities/Utils.cpp srcs/cgi/CGI.cpp srcs/response/AutoIndex.cpp
+#  Successfully updated.
 # variable set hash-table stats:
-# Load=8/32=25%, Rehash=0, Collisions=3/12=25%
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 #  commands to execute (from `Makefile', line 19):
 	@c++ -Wall -Wextra -Werror $(SRC) -o $(NAME) 
 	
@@ -238,7 +223,7 @@ srcs/cgi/CGI.cpp:
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-20 16:01:51
+#  Last modified 2022-06-20 18:01:31
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -263,7 +248,6 @@ srcs/Server.cpp:
 
 # Not a target:
 srcs/parser_config/SetupServer.cpp:
- 
 #  Implicit rule search has been done.
 #  Last modified 2022-06-20 16:01:51
 #  File has been updated.
@@ -330,6 +314,7 @@ srcs/parser_config/Parser.cpp:
 re: fclean all
 #  Implicit rule search has not been done.
 #  Modification time never checked.
+ 
 #  File has not been updated.
 
 clean:
@@ -339,7 +324,7 @@ clean:
 #  commands to execute (from `Makefile', line 22):
 	@ rm -rf *.gch
 	@ rm -rf *.dSYM
-	@rm -rf $(NAME)
+	@ rm -rf $(NAME)
 	
 
 # Not a target:
@@ -388,7 +373,7 @@ srcs/parser_request/LexerRe.cpp:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
 # files hash-table stats:
-# Load=24/1024=2%, Rehash=0, Collisions=0/56=0%
+# Load=24/1024=2%, Rehash=0, Collisions=0/55=0%
 # VPATH Search Paths
 
 # No `vpath' search paths.
@@ -400,6 +385,6 @@ srcs/parser_request/LexerRe.cpp:
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Mon Jun 20 16:02:38 2022
+# Finished Make data base on Mon Jun 20 18:19:58 2022
 
  
