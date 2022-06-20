@@ -24,7 +24,6 @@ std::string parseCgi(std::string out_file_path, std::string ext)
 
     if (ext != "py")
     {
-
         while (std::getline(out_file, line))
         {
             if (line == "\r")
@@ -36,9 +35,9 @@ std::string parseCgi(std::string out_file_path, std::string ext)
     }
 
     // recent add
-    std::cout << "*********|";
-    std::cout << headers << std::endl;
-    std::cout << "|*********\n";
+    // std::cout << "*********|";
+    // std::cout << headers << std::endl;
+    // std::cout << "|*********\n";
 
     while (std::getline(out_file, line))
     {
@@ -86,7 +85,7 @@ const std::string handle_cgi(std::string path, RequestInfo &request, ServerSetup
 
     // recent add
     std::string ext = path.substr(path.find_last_of(".") + 1, path.length() - path.find_last_of("."));
-    std::cout << "extension is:" << ext << std::endl;
+    // std::cout << "extension is:" << ext << std::endl;
 
     std::vector<const char *> argv;
     std::vector<const char *> envp;
