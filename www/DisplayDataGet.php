@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html>
-    <head>
-    <link rel="stylesheet" href="css/PagesStyle.css"> 
-    </head>
+<head>
+    <link rel="stylesheet" href="../css/PagesStyle.css"> 
+</head>
 <body>
 
-<h1>Info Submitted !!</h1>
-
-<h2>Your First Name: </h2> <?php echo $_GET["fname"]; ?>
-<h2>Your Last Name: </h2> <?php echo $_GET["lname"]; ?>
-
+<h2>Info Submitted !!</h2>
+<h3>Your First Name: </h3> 
+    <?php
+    if(isset($_GET['fname']))
+        echo $_GET['fname'];
+    ?>
+<h3>Your Last Name: </h3>
+    <?php
+    if(isset($_GET['lname']))
+        echo $_GET['lname'];
+    ?>
 <!--
 <h2>REQUEST_METHOD: </h2> <?php echo $_SERVER["REQUEST_METHOD"]; ?>
 <h2>CONTENT_LENGTH: </h2> <?php echo $_SERVER["CONTENT_LENGTH"]; ?>

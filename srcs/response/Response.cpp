@@ -81,16 +81,10 @@ int                                     Response::GET()
     if (this->_type_req_target == IS_FILE)
     {
         std::string uri = _request_info.getRequest_target();
-        
         if ((isPHPFile(uri) || isPythonFile(uri)) && _server_setup.getPhpCgiPath().length() > 0)
             return (SendCGIResponse(handle_cgi(_server_setup.getRoot() + uri, _request_info, _server_setup)));
         else if (isPHPFile(uri) && _server_setup.getPhpCgiPath().length() == 0)
             return (sendErrorPage(403, "PHP CGI not found"));
-
-        //recent Add|
-        // else if(isPythonFile(uri) && _server_setup.getPythonCgiPath().length() == 0)
-        //     return (sendErrorPage(403, "Python CGI not found"));
-        
         this->ConstructResponseFile(200, "OK", path);
         this->sendResponse();
         // if (isPHPFile(uri))
@@ -122,9 +116,18 @@ int                                     Response::POST()
 {   
     std::string uri = _request_info.getRequest_target();
     //  Upload File
-    if (this->_server_setup.getUploadStore() != "" && bodyIsFile())
+    if (this->_server_setup.getUploadStore() != "")
     {
-        uploadFile();
+        if (bodyIsFile())
+            uploadFile();
+        else
+        {
+            std::ofstream fileupload(this->_server_setup.getRoot()
+                            + this->_server_setup.getLocationPath() + "/" 
+                            + this->_server_setup.getUploadStore() + "uploaded.file");
+            fileupload << _request_info.getBody();
+            fileupload.close();
+        }
         this->ConstructResponseFile(200, "OK", SUCCESS_PAGE_UPLOAD);
         this->sendResponse();
         return (0);
