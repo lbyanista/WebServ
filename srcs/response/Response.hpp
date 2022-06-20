@@ -76,7 +76,7 @@ public:
     // ------------------  Non Member Functions ---------------- //
     // --------------------------------------------------------- //
     static std::string                     getContentType(const std::string& full_path);
-    static bool                            isCGIFile(const std::string& uri);
+
 
     // --------------------  Test Methods ---------------------- //
     // std::string     test(RequestInfo request_info, ServerSetup server_setup);

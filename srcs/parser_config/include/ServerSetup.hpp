@@ -17,6 +17,7 @@ typedef struct s_location
     std::string                                 upload_store;
     std::pair<short, std::string>               _return;
     std::string                                 _php_cgi_path;
+    std::string                                 _python_cgi_path;
 
 } t_location;
 
@@ -40,6 +41,7 @@ class ServerSetup
     std::pair<short, std::string>               _return;
     std::string                                 _location_path;        // location path{}
     std::string                                 _php_cgi_path;
+    std::string                                 _python_cgi_path;
     char***                                     envp;
 
     public:
@@ -68,6 +70,7 @@ class ServerSetup
     std::pair<short, std::string>               getReturn() const;
     std::string                                 getLocationPath() const;
     std::string                                 getPhpCgiPath() const;
+    std::string                                 getPythonCgiPath() const;
 
     void                                        setEnvp(char*** envp);
     // --------------------------------------------------------- //

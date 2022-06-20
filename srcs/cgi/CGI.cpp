@@ -16,22 +16,12 @@ void    ft_free_envp(std::vector<const char*> v)
 
 std::string    parseCgi(std::string out_file_path)
 {
-    // int         status;
-    // std::string msg_status;
     std::string headers;
-
     std::ofstream body_file(PATH_BODY_CGI);
     std::ifstream out_file(out_file_path);
 
     std::string line;
-    // std::getline(out_file, line);
-    // if (line.find("Status:") != std::string::npos)
-    // {
-    //     status = stringToInt(line.substr(8, 3));
-    //     msg_status = line.substr(line.find_last_of(" ") + 1, line.length() - line.find_last_of(" "));
-    // }
-    // else
-    //     headers.append(line);
+
     while (std::getline(out_file, line))
     {
         if (line == "\r")
@@ -84,7 +74,7 @@ std::vector<const char*>    setEnvp(RequestInfo &request, ServerSetup &server)
 
 const std::string     handle_cgi(std::string path, RequestInfo &request, ServerSetup &server)
 {   
-    std::cout << "Handle a CGI: " << path << std::endl; // DEBUG
+    std::cout << "|Handle a CGI: " << path << "|" <<std::endl; // DEBUG
 
     std::vector<const char*> argv;
     std::vector<const char*> envp;
@@ -93,7 +83,11 @@ const std::string     handle_cgi(std::string path, RequestInfo &request, ServerS
     pid_t pid;
 
     envp = setEnvp(request, server);
-    argv.push_back(server.getPhpCgiPath().c_str());
+    // check pyth cgi exist
+    if (isPHPFile(path))
+        argv.push_back(server.getPhpCgiPath().c_str());
+    else
+        argv.push_back(server.getPythonCgiPath().c_str());
     argv.push_back(path.c_str());
     argv.push_back(NULL);
 
@@ -109,6 +103,7 @@ const std::string     handle_cgi(std::string path, RequestInfo &request, ServerS
     {
         dup2(fd_in, 0);
         dup2(fd_out, 1);
+        // protect execve return "error" string
         execve(argv[0], const_cast<char * const *>(argv.data()), const_cast<char * const *>(envp.data()));
         exit (0);
     }
@@ -118,6 +113,6 @@ const std::string     handle_cgi(std::string path, RequestInfo &request, ServerS
     close (fd_out);
     
     ft_free_envp(envp);
-    system("cat /dev/null > /tmp/body_req.txt");
-    return  parseCgi(out_file);;
+    // system("cat /dev/null > /tmp/body_req.txt");
+    return  parseCgi(out_file);
 }

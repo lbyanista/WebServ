@@ -146,3 +146,16 @@ unsigned int                                hexToDecimal(const std::string &s)
     return (x);
 }
 
+bool                                        isPHPFile(const std::string& uri)
+{
+    if (uri.substr(uri.find_last_of(".") + 1) == "php")
+        return (true);
+    return (false);
+}
+
+bool                                      isPythonFile(const std::string& uri)
+{
+    if (uri.substr(uri.find_last_of(".") + 1) == "py")
+        return (true);
+    return (false);
+}

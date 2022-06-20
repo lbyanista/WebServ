@@ -81,13 +81,19 @@ int                                     Response::GET()
     if (this->_type_req_target == IS_FILE)
     {
         std::string uri = _request_info.getRequest_target();
-        if (isCGIFile(uri) && _server_setup.getPhpCgiPath().length() > 0)
+        
+        if ((isPHPFile(uri) || isPythonFile(uri)) && _server_setup.getPhpCgiPath().length() > 0)
             return (SendCGIResponse(handle_cgi(_server_setup.getRoot() + uri, _request_info, _server_setup)));
-        else if (isCGIFile(uri) && _server_setup.getPhpCgiPath().length() == 0)
+        else if (isPHPFile(uri) && _server_setup.getPhpCgiPath().length() == 0)
             return (sendErrorPage(403, "PHP CGI not found"));
+
+        //recent Add|
+        // else if(isPythonFile(uri) && _server_setup.getPythonCgiPath().length() == 0)
+        //     return (sendErrorPage(403, "Pythin CGI not found"));
+        
         this->ConstructResponseFile(200, "OK", path);
         this->sendResponse();
-        // if (isCGIFile(uri))
+        // if (isPHPFile(uri))
         //     system("cat /dev/null > /tmp/cgi.html");
         return (1);
     }
@@ -123,7 +129,7 @@ int                                     Response::POST()
         this->sendResponse();
         return (0);
     }
-    if (isCGIFile(uri) && _server_setup.getPhpCgiPath().length() > 0)
+    if ((isPHPFile(uri) || isPythonFile(uri))  && _server_setup.getPhpCgiPath().length() > 0)
         return (SendCGIResponse(handle_cgi(_server_setup.getRoot() + uri, _request_info, _server_setup)));   
 
     return (sendErrorPage(403, "Forbidden"));
@@ -193,9 +199,6 @@ int                                     Response::DELETE()
 {
     std::string path = _server_setup.getRoot() + _request_info.getRequest_target();
 
-    // int j = std::remove(path.c_str());
-    // std::cout << "************* j ************ " << j << "***************"<< path.c_str() << std::endl;
-
     int i = deleteFiles(path);
     if (i == -1)
         return (sendErrorPage(403, "Forbidden"));
@@ -231,6 +234,8 @@ void            Response::InitResponseConfig(t_location *location)
         _server_setup._return = location->_return;
     if (location->_php_cgi_path.length())
          _server_setup._php_cgi_path = location->_php_cgi_path;
+    if (location->_python_cgi_path.length())
+         _server_setup._python_cgi_path = location->_python_cgi_path;
 }
 
 std::pair<std::string, std::string>    Response::getErrorPage(int status_code) // (pair(path, msg))
@@ -511,11 +516,4 @@ std::string                     Response::getContentType(const std::string& full
             return it->second;
     }
     return "unknown";
-}
-
-bool                            Response::isCGIFile(const std::string& uri)
-{
-    if (uri.substr(uri.find_last_of(".") + 1) == "php")
-        return (true);
-    return (false);
 }
