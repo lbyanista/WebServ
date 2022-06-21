@@ -133,7 +133,6 @@ std::pair<short, std::string>   Parser::parseRedirect()
         errorDisplay("Invalid status code for redirection!");
     this->eat(WORD); // url
     redirect.second = prev_token.value;
-
     return (redirect);
 }
 std::vector<std::string>    Parser::parseWords()

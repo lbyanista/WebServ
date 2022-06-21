@@ -75,8 +75,7 @@ int                                     Response::handleResponse()
 }
 
 int                                     Response::GET()
-{   
-
+{
     std::string path = _server_setup.getRoot() + _request_info.getRequest_target();
     if (this->_type_req_target == IS_FILE)
     {
@@ -231,7 +230,7 @@ void            Response::InitResponseConfig(t_location *location)
     if (!location->request_method.empty())
         _server_setup.request_method = location->request_method;
     if (location->autoindex.length())
-         _server_setup.autoindex = location->autoindex;
+        _server_setup.autoindex = location->autoindex;
     if (location->upload_store.length())
         _server_setup.upload_store = location->upload_store;
     if (location->_return.first != -1)
