@@ -16,7 +16,7 @@ SRC =  	srcs/Server.cpp srcs/Request.cpp srcs/main.cpp\
 all : $(NAME)
 
 $(NAME): $(SRC)
-	@c++ -Wall -Wextra -Werror $(SRC) -o $(NAME) 
+	@c++ -Wall -Wextra -Werror $(SRC) -std=c++98 -o $(NAME)
 
 clean:
 	@ rm -rf *.gch
