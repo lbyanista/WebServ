@@ -41,7 +41,10 @@ Server::Server(std::vector<ServerSetup> servers) : _servers_setup(servers), _add
 			std::cerr << "setsockpt error" << std::endl;
 			exit(EXIT_FAILURE);
 		}
-
+		if(samePort(_v_address)){
+			std::cout << "Using the same ports" << std::endl;
+			exit(EXIT_FAILURE) ;
+		}
 		if (!samePort(_v_address))
 		{
 			if (bind(_server_fd, (struct sockaddr *)&_address, _address_len) < 0)
@@ -190,7 +193,7 @@ ServerSetup				Server::checkServerSetup(std::string host)
 
 	// std::cout << "**************|";
 	// std::cout << port << "|******\n";
-	
+
 	for (size_t i = 0; i < this->_servers_setup.size(); i++)
 	{
 		// std::vector<std::string> server_names = this->_servers_setup[i].getServer_name();

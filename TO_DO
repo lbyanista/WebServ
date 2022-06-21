@@ -36,3 +36,4 @@ To check :
 
 
 NOTE: comments tow of // system("cat /dev/null > /tmp/body_req.txt");
+fixed: exit when the same port
